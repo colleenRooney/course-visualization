@@ -1,0 +1,80 @@
+<html>
+
+<head>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+
+<body>
+    <script>
+        var crs = { "courses": [{ "depart": "CS", "id": "192", "name": "CgxCskqegsWphGSehcjz", "desc": "JSnjEUSgMPRhocQuiljtIBeWyCeZqxTRbOrT DHXMIgRQVDj BlR", "cred": 4, "p": true, "pre": ["CS 162", "CS 163", "CS 202"] }, { "depart": "CS", "id": "162", "name": "zQCPWjAKsEyTtidseINU", "desc": "mOdfpKuqWr dfRCdByPNLQqlvLXMZCFAPVwplfxfglSPzdaNSdQQy", "cred": 4, "p": false, "pre": ["MTH 200"] }, { "depart": "MTH", "id": "200", "name": "CgxCskqegshcjz", "desc": "CeZqxTRbOrT DHXMIgRQVDj BlR", "cred": 4, "p": false, "pre": [] }] }
+
+        let graph = d3.select("body").append("svg").attr("viewBox", "0 0 2000 2000");
+        let positions = [];
+        let posNs = [];
+        let i = 25;
+
+        //draw circles
+        for(let i = 0; i < crs.courses.length; i++){
+            if(crs.courses[i].depart === "CS"){
+                graph.append("circle").attr("cx", (i+1) * 75).attr("cy", (i+1)*75).attr("r", 25).attr("fill", "green");
+                graph.append("text").attr("x",((i+1) * 75)-20).attr("y", (i+1)*75).attr("style", "font-size: 12px").text(crs.courses[i].depart + " " + crs.courses[i].id);
+                
+                //store location
+                var pos = new Object();
+                pos.name = crs.courses[i].depart + " " + crs.courses[i].id;
+                pos.x = (i+1) * 75;
+                pos.y = (i+1) * 75;
+                positions.push(pos);
+                posNs.push(pos.name);
+            } else {
+                graph.append("circle").attr("cx", (i-1) * 75).attr("cy", (i+1)*75).attr("r", 25).attr("fill", "blue");
+                graph.append("text").attr("x",((i-1) * 75)-22).attr("y", (i+1)*75).attr("style", "font-size: 12px").text(crs.courses[i].depart + " " + crs.courses[i].id);
+                
+                //store location
+                var pos = new Object();
+                pos.name = crs.courses[i].depart + " " + crs.courses[i].id;
+                pos.x = (i-1) * 75;
+                pos.y = (i+1) * 75;
+                positions.push(pos);
+                posNs.push(pos.name);
+                console.log(posNs);
+            }  
+        }
+
+        //draw lines
+        //arrows will seem to rquire the use of svg polygons. calculating them will probably be a little complex and I'd rather finalize how
+        //we will calculate the positions of everything else before we figure that out
+
+        for(let i = 0; i < crs.courses.length; i++){
+            let me = crs.courses[i];
+            let reqs =  me.pre;
+            let name = me.depart + " " + me.id;
+
+            let myx = 0;
+            let myy = 0;
+            console.log("name: " + name + " and the rest: " + posNs);
+            if(posNs.includes(name)){
+                let ind = posNs.indexOf(name);
+
+                //to fix overlap, we'll need to figure out how to calcuate r I think, or draw the lines before the cirlces somehow
+                let myx = positions[ind].x;
+                let myy = positions[ind].y;
+
+                
+
+                for(let k = 0; k < positions.length; k++){
+                    if(reqs.includes(positions[k].name)){
+                        let urx = positions[k].x;
+                        let ury = positions[k].y;
+                        graph.append("line").attr("x1", myx).attr("x2", urx).attr("y1", myy).attr("y2", ury).attr("stroke", "black");
+                        
+                    }
+                
+                }
+            }               
+        }
+        console.log(positions);
+    </script>
+</body>
+
+</html>
