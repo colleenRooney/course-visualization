@@ -17,10 +17,14 @@ from requests import get
 from requests.exceptions import RequestException
 from contextlib import closing
 from bs4 import BeautifulSoup
+import bs4
 import time
 import json
+import re
 
 OUT_FILE = 'scraped_data.json'
+LABELED_COURSE_RE = re.compile("(?:CS|MA{0,1}TH|STATS{0,1}) {0,1}[0-6][\d][\d]", re.IGNORECASE)
+
 
 def simple_get(url):
     """
@@ -60,24 +64,24 @@ def get_data(page, data, math=False):
     soup = BeautifulSoup(page, 'html.parser')
     cid = soup.find_all('h1')
 
-    for c in cid:
-        course_split = c.get_text().split(' ')
-        depart = course_split[0]
-        ID = course_split[1]
-
-        # temp, need to hadnle both courses
-        if len(ID) > 3:
-            ID = course_split[1].split('/')[1]
-        name = (' ').join(course_split[2:])
-
     # initalize data to false
     depart = None
     ID = None
     name = None
     desc = None
     credits = None
-    preq = None
-    p = None
+    preq = []
+    P = None
+
+    for c in cid:
+        course_split = c.get_text().split(' ')
+        depart = course_split[0]
+        ID = course_split[1]
+
+        # temp, need to hadnle both courses
+        if len(ID) > 4:
+            ID = course_split[1].split('/')[1]
+        name = (' ').join(course_split[2:])
 
     # hacky
     if not math:
@@ -87,7 +91,7 @@ def get_data(page, data, math=False):
             text = t.get_text()
             entries = text.split(':')
             if str(entries[0]) == 'Credit Hours':
-                credits = entries[1].strip().replace(',', '')
+                credits = entries[1].strip()
                 # temp, need to hadnle both courses
                 if len(credits) > 1:
                     # edge case, fix
@@ -96,21 +100,40 @@ def get_data(page, data, math=False):
                     else:
                         credits = credits.split('/')[1]
             if str(entries[0]) == 'Course Description':
-                desc = entries[1].strip().replace(',', '')
+                desc = entries[1].strip()
             if str(entries[0]) == 'Prerequisites':
-                # this is going to need some cleaning
-                preq = entries[1].strip().replace(',', '')
+                # only accepts explict departmental labeled courses,
+                #need some fancy regex to pull other depends
+                preq_raw = entries[1].strip()
+                labeled_preq = re.findall(LABELED_COURSE_RE, preq_raw)
+                preq.extend(labeled_preq)
+
     elif math:
-        pass
+        desc = soup.find_all('div', {'class': 'desc'})
+        credits = soup.find_all('div', {'class': 'credits'})
+        desc = desc[0].get_text().strip()
+        credits = credits[0].get_text().strip()
+        if len(credits) > 2:
+            credits = credits.split('-')[1]
+
+        headers = soup.find_all('h3')
+        for h in headers:
+            if h.get_text().strip() == 'Prerequisite':
+                preqs = h.next_siblings
+                for p in preqs:
+                    if isinstance(p, bs4.element.Tag):
+                        preq.append(p.contents[0])
+
     data['courses'].append({
         'depart': depart,
         'id': ID,
         'name': name,
         'desc': desc,
         'cred': credits,
-        'p': p,
+        'p': P,
         'pre': preq
     })
+    print(data)
     return data
 
 def traverse_links(links, data, math=False):
@@ -123,16 +146,21 @@ def traverse_links(links, data, math=False):
         get_data(page, data, math)
 
 
-top_page = simple_get('https://www.pdx.edu/computer-science/graduate-courses')
-# MATH - need to implement
-#top_page = simple_get('http://pdx.smartcatalogiq.com/2018-2019/Bulletin/Courses/Mth-Mathematical-Sciences')
+data = {}
+data['courses'] = []
 
+top_page = simple_get('https://www.pdx.edu/computer-science/graduate-courses')
 soup = BeautifulSoup(top_page, 'html.parser')
 tags = soup.find_all('ul')
 links = tags[6].find_all('li')
 
-data = {}
-data['courses'] = []
 traverse_links(links, data, math=False)
+
+top_page = simple_get('http://pdx.smartcatalogiq.com/2018-2019/Bulletin/Courses/Mth-Mathematical-Sciences')
+soup = BeautifulSoup(top_page, 'html.parser')
+tags = soup.find_all('ul')
+links = tags[6].find_all('li')
+traverse_links(links, data, math=True)
+
 with open(OUT_FILE, 'w') as outfile:
     json.dump(data, outfile)
