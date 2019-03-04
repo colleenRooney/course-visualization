@@ -2,79 +2,74 @@
 
 <head>
     <script src="https://d3js.org/d3.v5.min.js"></script>
+
 </head>
 
 <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script>
         var crs = { "courses": [{ "depart": "CS", "id": "192", "name": "CgxCskqegsWphGSehcjz", "desc": "JSnjEUSgMPRhocQuiljtIBeWyCeZqxTRbOrT DHXMIgRQVDj BlR", "cred": 4, "p": true, "pre": ["CS 162", "CS 163", "CS 202"] }, { "depart": "CS", "id": "162", "name": "zQCPWjAKsEyTtidseINU", "desc": "mOdfpKuqWr dfRCdByPNLQqlvLXMZCFAPVwplfxfglSPzdaNSdQQy", "cred": 4, "p": false, "pre": ["MTH 200"] }, { "depart": "MTH", "id": "200", "name": "CgxCskqegshcjz", "desc": "CeZqxTRbOrT DHXMIgRQVDj BlR", "cred": 4, "p": false, "pre": [] }] }
+        let entries = [];
+        let names = [];
 
-        let graph = d3.select("body").append("svg").attr("viewBox", "0 0 2000 2000");
-        let positions = [];
-        let posNs = [];
-        let i = 25;
+        for (let i = 0; i < crs.courses.length; i++) {
+            let entry = new Object();
+            entry.depart = crs.courses[i].depart;
+            entry.id = crs.courses[i].id;
+            entry.name = crs.courses[i].name;
+            entry.desc = crs.courses[i].desc;
+            entry.cred = crs.courses[i].cred;
+            entry.p = crs.courses[i].p;
+            entry.pre = crs.courses[i].pre;
 
-        //draw circles
-        for(let i = 0; i < crs.courses.length; i++){
-            if(crs.courses[i].depart === "CS"){
-                graph.append("circle").attr("cx", (i+1) * 75).attr("cy", (i+1)*75).attr("r", 25).attr("fill", "green");
-                graph.append("text").attr("x",((i+1) * 75)-20).attr("y", (i+1)*75).attr("style", "font-size: 12px").text(crs.courses[i].depart + " " + crs.courses[i].id);
-                
-                //store location
-                var pos = new Object();
-                pos.name = crs.courses[i].depart + " " + crs.courses[i].id;
-                pos.x = (i+1) * 75;
-                pos.y = (i+1) * 75;
-                positions.push(pos);
-                posNs.push(pos.name);
-            } else {
-                graph.append("circle").attr("cx", (i-1) * 75).attr("cy", (i+1)*75).attr("r", 25).attr("fill", "blue");
-                graph.append("text").attr("x",((i-1) * 75)-22).attr("y", (i+1)*75).attr("style", "font-size: 12px").text(crs.courses[i].depart + " " + crs.courses[i].id);
-                
-                //store location
-                var pos = new Object();
-                pos.name = crs.courses[i].depart + " " + crs.courses[i].id;
-                pos.x = (i-1) * 75;
-                pos.y = (i+1) * 75;
-                positions.push(pos);
-                posNs.push(pos.name);
-                console.log(posNs);
-            }  
+            entry.x = Math.floor(Math.random() * 200);
+            entry.y = Math.floor(Math.random() * 200);
+            entry.selected = false;
+            entries.push(entry);
+            names.push(entry.depart + " " + entry.id);
         }
 
-        //draw lines
-        //arrows will seem to rquire the use of svg polygons. calculating them will probably be a little complex and I'd rather finalize how
-        //we will calculate the positions of everything else before we figure that out
+        let graph = d3.select("body").append("svg").attr("viewBox", "0 0 500 500");
 
-        for(let i = 0; i < crs.courses.length; i++){
-            let me = crs.courses[i];
-            let reqs =  me.pre;
-            let name = me.depart + " " + me.id;
+        //can be changed to when data arrives
+        $(document).ready(function () {
 
-            let myx = 0;
-            let myy = 0;
-            console.log("name: " + name + " and the rest: " + posNs);
-            if(posNs.includes(name)){
-                let ind = posNs.indexOf(name);
+            //draw lines
+            //arrows will seem to rquire the use of svg polygons. calculating them will probably be a little complex and I'd rather finalize how
+            //we will calculate the positions of everything else before we figure that out
 
-                //to fix overlap, we'll need to figure out how to calcuate r I think, or draw the lines before the cirlces somehow
-                let myx = positions[ind].x;
-                let myy = positions[ind].y;
+            for (let i = 0; i < entries.length; i++) {
+                let me = entries[i];
+                let name = me.depart + " " + me.id;
 
-                
 
-                for(let k = 0; k < positions.length; k++){
-                    if(reqs.includes(positions[k].name)){
-                        let urx = positions[k].x;
-                        let ury = positions[k].y;
-                        graph.append("line").attr("x1", myx).attr("x2", urx).attr("y1", myy).attr("y2", ury).attr("stroke", "black");
-                        
+                for (let k = 0; k < entries.length; k++) {
+                    let name = entries[k].depart + " " + entries[k].id;
+                    if (me.pre.includes(name)) {
+                        graph.append("line").attr("x1", me.x).attr("x2", entries[k].x).attr("y1", me.y).attr("y2", entries[k].y).attr("stroke", "black").attr("stroke-width", ".5");
                     }
-                
+
                 }
-            }               
-        }
-        console.log(positions);
+            }
+
+            //draw circles
+            for (let i = 0; i < entries.length; i++) {
+                if (entries[i].depart === "CS") {
+                    graph.append("circle").attr("cx", entries[i].x).attr("cy", entries[i].y).attr("r", 5).attr("fill", "green");
+                    graph.append("text").attr("x", (entries[i].x) - 5).attr("y", entries[i].y).attr("style", "font-size: 3px").text(entries[i].depart + " " + entries[i].id);
+
+
+                } else {
+                    graph.append("circle").attr("cx", entries[i].x).attr("cy", entries[i].y).attr("r", 5).attr("fill", "blue");
+                    graph.append("text").attr("x", (entries[i].x) - 5).attr("y", entries[i].y).attr("style", "font-size: 3px").text(entries[i].depart + " " + entries[i].id);
+                }
+            }
+
+        });
+
+
     </script>
+
 </body>
 
 </html>
