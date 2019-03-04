@@ -20,5 +20,5 @@ class Course(models.Model):
 
     def __str__(self):
         """ return a string representation of the model """
-        return self.depart + self.cid
+        return self.name
 
