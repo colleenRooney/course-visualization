@@ -21,18 +21,98 @@
             entry.cred = crs.courses[i].cred;
             entry.p = crs.courses[i].p;
             entry.pre = crs.courses[i].pre;
+            entry.info = crs.courses[i].depart + " " + crs.courses[i].id;
 
             entry.x = Math.floor(Math.random() * 200);
             entry.y = Math.floor(Math.random() * 200);
             entry.selected = false;
+            entry.highlighted = false;
             entries.push(entry);
             names.push(entry.depart + " " + entry.id);
         }
 
         let graph = d3.select("body").append("svg").attr("viewBox", "0 0 500 500");
 
-        //can be changed to when data arrives
-        $(document).ready(function () {
+        function getColor(i) {
+            if (!(i > (entries.length - 1))) {
+                if (entries[i].depart === "CS") {
+                    if (entries[i].highlighted === true) {
+                        return "GreenYellow";
+                    } else {
+                        return "Green";
+                    }
+                } else {
+                    if (entries[i].highlighted === true) {
+                        return "Cyan";
+                    } else {
+                        return "Blue";
+                    }
+                }
+            }
+        }
+
+        function getSize(i) {
+            if (!(i > (entries.length - 1))) {
+                if (entries[i].selected === true) {
+                    return 10;
+                } else {
+                    return 5;
+                }
+            }
+        }
+
+        function selectCircle() {
+            let found = false;
+            let sel = entries[0];
+            for (let i = 0; i < entries.length; i++) {
+                if (this.id === entries[i].info) {
+                    found = true;
+                    sel = entries[i];
+                } else {
+                    entries[i].selected = false;
+                    entries[i].highlighted = false;
+                }
+            }
+
+            if (found === true) {
+                console.log("change");
+                if (sel.selected === false) {
+                    sel.selected = true;
+                    sel.highlighted = true;
+                    for (let i = 0; i < entries.length; i++) {
+                        for (let k = 0; k < entries.length; k++) {
+                            let name = entries[k].depart + " " + entries[k].id;
+                            if (sel.pre.includes(name)) {
+                                entries[k].highlighted = true;
+                            } else {
+                                highlighted = false;
+                            }
+
+                        }
+                    }
+                } else {
+                    sel.selected = false;
+                    sel.highlighted = false;
+                    for (let i = 0; i < entries.length; i++) {
+                        for (let k = 0; k < entries.length; k++) {
+                            let name = entries[k].depart + " " + entries[k].id;
+                            if (sel.pre.includes(name)) {
+                                entries[k].highlighted = false;
+                            } else {
+                                highlighted = false;
+                            }
+
+                        }
+                    }
+                }
+
+                draw();
+            }
+
+        }
+
+        function draw() {
+            graph.selectAll("*").remove();
 
             //draw lines
             //arrows will seem to rquire the use of svg polygons. calculating them will probably be a little complex and I'd rather finalize how
@@ -54,17 +134,20 @@
 
             //draw circles
             for (let i = 0; i < entries.length; i++) {
-                if (entries[i].depart === "CS") {
-                    graph.append("circle").attr("cx", entries[i].x).attr("cy", entries[i].y).attr("r", 5).attr("fill", "green");
-                    graph.append("text").attr("x", (entries[i].x) - 5).attr("y", entries[i].y).attr("style", "font-size: 3px").text(entries[i].depart + " " + entries[i].id);
-
-
+                graph.append("circle").attr("cx", entries[i].x).attr("cy", entries[i].y).attr("r", getSize(i)).attr("fill", getColor(i)).attr("id", entries[i].depart + " " + entries[i].id).on("click", selectCircle);
+                if (entries[i].selected === false) {
+                    graph.append("text").attr("x", (entries[i].x) - 5).attr("y", entries[i].y).attr("style", "font-size: 3").text(entries[i].depart + " " + entries[i].id);
                 } else {
-                    graph.append("circle").attr("cx", entries[i].x).attr("cy", entries[i].y).attr("r", 5).attr("fill", "blue");
-                    graph.append("text").attr("x", (entries[i].x) - 5).attr("y", entries[i].y).attr("style", "font-size: 3px").text(entries[i].depart + " " + entries[i].id);
+                    graph.append("text").attr("x", (entries[i].x) - 5).attr("y", entries[i].y).attr("style", "font-size: 3").text(entries[i].depart + " " + entries[i].id + ": " + entries[i].desc);
                 }
             }
 
+        }
+
+
+        //can be changed to when data arrives
+        $(document).ready(function () {
+            draw();
         });
 
 
