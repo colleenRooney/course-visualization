@@ -408,7 +408,7 @@
                 },
                 {
                     "depart": "MATH",
-                    "id": "MATH 331",
+                    "id": "331",
                     "name": "LbAlXeCWdG lHUJcGQXr",
                     "desc": "iLyqkAVcCYGeLGmb OWuMhkZWWNxjyMewDhiOnJZBiweqIOr SBEQsFVJHodvQdLHHKJ SZTorjOev UaSvFvvJzDVvZNJaDSngHeyuJqZycMIdcAyIHmP HzpILykfPfTPLklVxNe  EfshdfZYFvwsBFODzNvqM RkLCynjswRIYsqCcKealvXXwnJMiOerbud kNS",
                     "cred": 4,
@@ -610,32 +610,32 @@
 
         let graph = d3.select("body").append("svg").attr("viewBox", "0 0 1000 1000");
 
-        function getColor(i) {
-            if (!(i > (entries.length - 1))) {
-                if (entries[i].depart === "CS") {
-                    if (entries[i].highlighted === true) {
-                        return "GreenYellow";
-                    } else {
-                        return "Green";
-                    }
+        function getColor(entry) {
+
+            if (entry.depart === "CS") {
+                if (entry.highlighted === true) {
+                    return "GreenYellow";
                 } else {
-                    if (entries[i].highlighted === true) {
-                        return "Cyan";
-                    } else {
-                        return "Blue";
-                    }
+                    return "Green";
+                }
+            } else {
+                if (entry.highlighted === true) {
+                    return "Cyan";
+                } else {
+                    return "Blue";
                 }
             }
+
         }
 
-        function getSize(i) {
-            if (!(i > (entries.length - 1))) {
-                if (entries[i].selected === true) {
-                    return 20;
-                } else {
-                    return 10;
-                }
+        function getSize(entry) {
+
+            if (entry.selected === true) {
+                return 20;
+            } else {
+                return 10;
             }
+
         }
 
         function selectCircle() {
@@ -687,6 +687,14 @@
 
         }
 
+        function getText(entry) {
+            if (entry.selected === false) {
+                return entry.depart + " " + entry.id;
+            } else {
+                return entry.depart + " " + entry.id + ": " + entry.name + "  - " + entry.desc;
+            }
+        }
+
         function draw() {
             graph.selectAll("*").remove();
 
@@ -709,14 +717,13 @@
             }
 
             //draw circles
-            for (let i = 0; i < entries.length; i++) {
-                graph.append("circle").attr("cx", entries[i].x).attr("cy", entries[i].y).attr("r", getSize(i)).attr("fill", getColor(i)).attr("id", entries[i].depart + " " + entries[i].id).on("dblclick", selectCircle);
-                if (entries[i].selected === false) {
-                    graph.append("text").attr("x", (entries[i].x) - 5).attr("y", entries[i].y).attr("style", "font-size: 5").text(entries[i].depart + " " + entries[i].id);
-                } else {
-                    graph.append("text").attr("x", (entries[i].x) - 5).attr("y", entries[i].y).attr("style", "font-size: 5").text(entries[i].depart + " " + entries[i].id + ": " + entries[i].desc);
-                }
-            }
+            let verts = graph.selectAll('g').data(entries);
+
+
+            let vert = verts.enter();
+            let grp = vert.append("g").attr("id", function (entry) { return entry.depart + " " + entry.id }).on("dblclick", selectCircle);
+            grp.append("circle").attr("cx", function (entry) { return entry.x }).attr("cy", function (entry) { return entry.y }).attr("r", getSize).attr("fill", getColor);
+            grp.append("text").attr("x", function (entry) { return entry.x - 5 }).attr("y", function (entry) { return entry.y }).attr("style", "font-size: 5").text(getText);
 
         }
 
@@ -725,6 +732,9 @@
         $(document).ready(function () {
             draw();
         });
+
+
+        d3.selectAll("circle")
 
 
     </script>
