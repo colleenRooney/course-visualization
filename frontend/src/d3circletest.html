@@ -586,6 +586,7 @@
         let entries = [];
         let names = [];
 
+        //have selected department setting, display only if in that department or dependent on it
         for (let i = 0; i < crs.courses.length; i++) {
             let entry = new Object();
             entry.depart = crs.courses[i].depart;
@@ -721,7 +722,7 @@
 
 
             let vert = verts.enter();
-            let grp = vert.append("g").attr("id", function (entry) { return entry.depart + " " + entry.id }).on("dblclick", selectCircle);
+            let grp = vert.append("g").attr("id", function (entry) { return entry.depart + " " + entry.id }).on("click", selectCircle);
             grp.append("circle").attr("cx", function (entry) { return entry.x }).attr("cy", function (entry) { return entry.y }).attr("r", getSize).attr("fill", getColor);
             grp.append("text").attr("x", function (entry) { return entry.x - 5 }).attr("y", function (entry) { return entry.y }).attr("style", "font-size: 5").text(getText);
 
@@ -732,10 +733,6 @@
         $(document).ready(function () {
             draw();
         });
-
-
-        d3.selectAll("circle")
-
 
     </script>
 
