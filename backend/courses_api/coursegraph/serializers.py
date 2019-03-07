@@ -10,5 +10,6 @@ class CourseSerializer(serializers.ModelSerializer):
                 'name',
                 'desc',
                 'cred',
+                'pre',
                 )
         model = Course

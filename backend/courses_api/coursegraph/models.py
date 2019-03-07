@@ -10,13 +10,20 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 # "pre": an array of departments and their IDs like ['CS 202', 'CS 465P']
 
 class Course(models.Model):
-    depart = models.CharField(max_length=10, null=False, blank=False)
+    DEPARTMENTS = (
+            ('CS', 'Computer Science'),
+            ('MTH', 'Math'),
+            ('STAT', 'Statistics'),
+            )
+
+    depart = models.CharField(max_length=4, null=False, blank=False, choices=DEPARTMENTS)
     cid = models.IntegerField(validators=[MinValueValidator(100),
                                MaxValueValidator(699)])
     name = models.CharField(max_length=40, null=False, blank=False)
     desc = models.CharField(max_length=5000, null=True, blank=True)
     cred = models.IntegerField(validators=[MinValueValidator(0),
-                                MaxValueValidator(6)])
+                                MaxValueValidator(6)], null=True, blank=True)
+    pre = models.CharField(max_length=500, null=True, blank=True)
 
     def __str__(self):
         """ return a string representation of the model """

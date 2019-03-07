@@ -17,14 +17,40 @@ from requests import get
 from requests.exceptions import RequestException
 from contextlib import closing
 from bs4 import BeautifulSoup
+import itertools
 import bs4
 import time
 import json
 import re
+import os
+import sys
+import django
 
+# all of this nonsense should eventually be in manage.py
+script_path = os.path.dirname(__file__)
+project_dir = os.path.abspath(os.path.join(script_path, 'courses_api'))
+sys.path.insert(0, project_dir)
+os.environ['DJANGO_SETTINGS_MODULE']='courses_api.settings'
+django.setup()
+
+from coursegraph.models import Course
+from django.contrib.auth.models import User
+
+users = User.objects.all()
 OUT_FILE = 'scraped_data.json'
 LABELED_COURSE_RE = re.compile("(?:CS|MA{0,1}TH|STATS{0,1}) {0,1}[0-6][\d][\d]", re.IGNORECASE)
 
+
+def normalize_depart(depart):
+    depart.strip().upper()
+    if depart.startswith('M'):
+        return 'MTH'
+    elif depart.startswith('STAT'):
+        return 'STAT'
+    elif depart.startswith('C'):
+        return 'CS'
+    else:
+        return depart
 
 def simple_get(url):
     """
@@ -81,6 +107,7 @@ def get_data(page, data, math=False):
         # temp, need to hadnle both courses
         if len(ID) > 4:
             ID = course_split[1].split('/')[1]
+        ID = int(''.join(filter(str.isdigit, ID)))
         name = (' ').join(course_split[2:])
 
     # hacky
@@ -106,6 +133,8 @@ def get_data(page, data, math=False):
                 #need some fancy regex to pull other depends
                 preq_raw = entries[1].strip()
                 labeled_preq = re.findall(LABELED_COURSE_RE, preq_raw)
+                for lp in labeled_preq:
+                    lp.replace(' ', '')
                 preq.extend(labeled_preq)
 
     elif math:
@@ -122,18 +151,25 @@ def get_data(page, data, math=False):
                 preqs = h.next_siblings
                 for p in preqs:
                     if isinstance(p, bs4.element.Tag):
-                        preq.append(p.contents[0])
+                        clean = ["".join(c) for _, c in itertools.groupby(p.contents[0], key=str.isdigit)]
+                        clean = normalize_depart(clean[0]) + ' ' + clean[1].strip()
+                        preq.append(clean)
+
+    # Some more data cleaning
+    normalize_depart(depart)
 
     data['courses'].append({
         'depart': depart,
-        'id': ID,
+        'cid': ID,
         'name': name,
         'desc': desc,
         'cred': credits,
-        'p': P,
         'pre': preq
     })
-    print(data)
+
+    course = Course(depart=depart, cid=ID, name=name, desc=desc,
+            cred=credits, pre=preq)
+    course.save()
     return data
 
 def traverse_links(links, data, math=False):
@@ -162,5 +198,6 @@ tags = soup.find_all('ul')
 links = tags[6].find_all('li')
 traverse_links(links, data, math=True)
 
-with open(OUT_FILE, 'w') as outfile:
-    json.dump(data, outfile)
+# to json file
+#with open(OUT_FILE, 'w') as outfile:
+#    json.dump(data, outfile)
