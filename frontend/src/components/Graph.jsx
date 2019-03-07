@@ -640,11 +640,14 @@ function selectCircle(entry) {
             console.log("highlighting");
             entries[k].highlighted = true;
           } else {
-            entries[k].highlighted = false;
+            if (entry.depart + " " + entry.id != name) {
+              entries[k].highlighted = false;
+            }
           }
 
         }
       }
+      console.log("sel highlighted: " + sel.highlighted + " should be true")
     } else {
       entry.selected = false;
       entry.highlighted = false;
@@ -660,6 +663,7 @@ function selectCircle(entry) {
         }
       }
     }
+    console.log("sel highlighted: " + sel.highlighted + " should be true")
     console.log("made it this far")
     draw();
   }
