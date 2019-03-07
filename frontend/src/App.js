@@ -23,7 +23,7 @@ class App extends Component {
     return (
       <div>
         <div>
-          <Graph />
+          <Graph crs = {this.state.courses}/>
         </div>
         <div>
           {this.state.courses.map(item => (
