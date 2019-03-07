@@ -582,195 +582,153 @@ var crs = {
 //will probably want to change if we get to it, this was fastest
 let entries = [];
 let names = [];
+let graph = undefined;
+
+function getColor(entry) {
+
+  if (entry.depart === "CS") {
+    if (entry.highlighted === true) {
+      return "GreenYellow";
+    } else {
+      return "Green";
+    }
+  } else {
+    if (entry.highlighted === true) {
+      return "Cyan";
+    } else {
+      return "Blue";
+    }
+  }
+
+}
+
+function getSize(entry) {
+
+  if (entry.selected === true) {
+    return 20;
+  } else {
+    return 10;
+  }
+
+}
+
+function selectCircle(entry) {
+  console.log("clicked");
+  let found = false;
+  let sel = entries[0];
+  console.log("entry: " + entry.id)
+  for (let i = 0; i < entries.length; i++) {
+    if (entry.depart + " " + entry.id === entries[i].info) {
+      console.log("found");
+      found = true;
+      sel = entries[i];
+    } else {
+      entries[i].selected = false;
+      entries[i].highlighted = false;
+    }
+  }
+
+  if (found === true) {
+    if (entry.selected === false) {
+      entry.selected = true;
+      entry.highlighted = true;
+      console.log("sel highlighted: " + sel.highlighted + " should be true")
+      for (let i = 0; i < entries.length; i++) {
+        for (let k = 0; k < entries.length; k++) {
+          let name = entries[k].depart + " " + entries[k].id;
+          if (sel.pre.includes(name)) {
+            console.log("highlighting");
+            entries[k].highlighted = true;
+          } else {
+            entries[k].highlighted = false;
+          }
+
+        }
+      }
+    } else {
+      entry.selected = false;
+      entry.highlighted = false;
+      for (let i = 0; i < entries.length; i++) {
+        for (let k = 0; k < entries.length; k++) {
+          let name = entries[k].depart + " " + entries[k].id;
+          if (sel.pre.includes(name)) {
+            entries[k].highlighted = false;
+          } else {
+            entries[k].highlighted = false;
+          }
+
+        }
+      }
+    }
+    console.log("made it this far")
+    draw();
+  }
+
+}
+
+function getText(entry) {
+  if (entry.selected === false) {
+    return entry.depart + " " + entry.id;
+  } else {
+    return entry.depart + " " + entry.id + ": " + entry.name + "  - " + entry.desc;
+  }
+}
+
+function draw() {
+  graph.selectAll("*").remove();
+
+  //draw lines
+  //arrows will seem to rquire the use of svg polygons. calculating them will probably be a little complex and I'd rather finalize how
+  //we will calculate the positions of everything else before we figure that out
+
+  for (let i = 0; i < entries.length; i++) {
+    console.log("entries 1:" + entries)
+    let me = entries[i];
+    let name = me.depart + " " + me.id;
+
+    for (let k = 0; k < entries.length; k++) {
+      let name = entries[k].depart + " " + entries[k].id;
+      if (me.pre.includes(name)) {
+        graph.append("line").attr("x1", me.x).attr("x2", entries[k].x).attr("y1", me.y).attr("y2", entries[k].y).attr("stroke", "black").attr("stroke-width", "1");
+      }
+
+    }
+  }
+
+  //draw circles
+  let verts = graph.selectAll('g').data(entries);
+
+  let vert = verts.enter();
+  let grp = vert.append("g").attr("id", function (entry) { return entry.depart + " " + entry.id }).on("click", function (entry) { return selectCircle(entry) });
+  grp.append("circle").attr("cx", function (entry) { return entry.x }).attr("cy", function (entry) { return entry.y }).attr("r", function (entry) {
+    return getSize(entry)
+  }).attr("fill", function (entry) {
+    return getColor(entry)
+  });
+  grp.append("text").attr("x", function (entry) { return entry.x - 5 }).attr("y", function (entry) { return entry.y }).attr("style", "font-size: 5").text(function (entry) {
+    return getText(entry)
+  });
+
+}
+
+function start(inc) {
+  graph = inc;
+  draw();
+}
 
 class Graph extends Component {
 
-  getColor(entry) {
-
-    if (entry.depart === "CS") {
-      if (entry.highlighted === true) {
-        return "GreenYellow";
-      } else {
-        return "Green";
-      }
-    } else {
-      if (entry.highlighted === true) {
-        return "Cyan";
-      } else {
-        return "Blue";
-      }
-    }
-
+  constructor() {
+    super();
+    /*this.draw = this.draw.bind(this);
+    this.getColor = this.getColor.bind(this);
+    this.getSize = this.getSize.bind(this);
+    this.selectCircle = this.selectCircle(this);*/
   }
 
-  getSize(entry) {
 
-    if (entry.selected === true) {
-      return 20;
-    } else {
-      return 10;
-    }
 
-  }
 
-  selectCircle(entry) {
-    let found = false;
-    let sel = entries[0];
-    for (let i = 0; i < entries.length; i++) {
-      if (entry.id === entries[i].info) {
-        found = true;
-        sel = entries[i];
-      } else {
-        entries[i].selected = false;
-        entries[i].highlighted = false;
-      }
-    }
-
-    if (found === true) {
-      if (sel.selected === false) {
-        sel.selected = true;
-        sel.highlighted = true;
-        for (let i = 0; i < entries.length; i++) {
-          for (let k = 0; k < entries.length; k++) {
-            let name = entries[k].depart + " " + entries[k].id;
-            if (sel.pre.includes(name)) {
-              entries[k].highlighted = true;
-            } else {
-              entries[k].highlighted = false;
-            }
-
-          }
-        }
-      } else {
-        sel.selected = false;
-        sel.highlighted = false;
-        for (let i = 0; i < entries.length; i++) {
-          for (let k = 0; k < entries.length; k++) {
-            let name = entries[k].depart + " " + entries[k].id;
-            if (sel.pre.includes(name)) {
-              entries[k].highlighted = false;
-            } else {
-              entries[k].highlighted = false;
-            }
-
-          }
-        }
-      }
-
-      this.draw();
-    }
-
-  }
-
-  getText(entry) {
-    if (entry.selected === false) {
-      return entry.depart + " " + entry.id;
-    } else {
-      return entry.depart + " " + entry.id + ": " + entry.name + "  - " + entry.desc;
-    }
-  }
-
-  draw() {
-    this.graph.selectAll("*").remove();
-
-    //draw lines
-    //arrows will seem to rquire the use of svg polygons. calculating them will probably be a little complex and I'd rather finalize how
-    //we will calculate the positions of everything else before we figure that out
-
-    for (let i = 0; i < entries.length; i++) {
-      let me = entries[i];
-      let name = me.depart + " " + me.id;
-
-      for (let k = 0; k < entries.length; k++) {
-        let name = entries[k].depart + " " + entries[k].id;
-        if (me.pre.includes(name)) {
-          this.graph.append("line").attr("x1", me.x).attr("x2", entries[k].x).attr("y1", me.y).attr("y2", entries[k].y).attr("stroke", "black").attr("stroke-width", "1");
-        }
-
-      }
-    }
-
-    //draw circles
-    let verts = this.graph.selectAll('g').data(entries);
-
-    let vert = verts.enter();
-    let grp = vert.append("g").attr("id", function (entry) { return entry.depart + " " + entry.id }).on("click", function (entry) {
-      let found = false;
-      let sel = entries[0];
-      for (let i = 0; i < entries.length; i++) {
-        if (entry.id === entries[i].info) {
-          found = true;
-          sel = entries[i];
-        } else {
-          entries[i].selected = false;
-          entries[i].highlighted = false;
-        }
-      }
-
-      if (found === true) {
-        if (sel.selected === false) {
-          sel.selected = true;
-          sel.highlighted = true;
-          for (let i = 0; i < entries.length; i++) {
-            for (let k = 0; k < entries.length; k++) {
-              let name = entries[k].depart + " " + entries[k].id;
-              if (sel.pre.includes(name)) {
-                entries[k].highlighted = true;
-              } else {
-                entries[k].highlighted = false;
-              }
-
-            }
-          }
-        } else {
-          sel.selected = false;
-          sel.highlighted = false;
-          for (let i = 0; i < entries.length; i++) {
-            for (let k = 0; k < entries.length; k++) {
-              let name = entries[k].depart + " " + entries[k].id;
-              if (sel.pre.includes(name)) {
-                entries[k].highlighted = false;
-              } else {
-                entries[k].highlighted = false;
-              }
-
-            }
-          }
-        }
-
-        this.draw();
-      }
-    });
-    grp.append("circle").attr("cx", function (entry) { return entry.x }).attr("cy", function (entry) { return entry.y }).attr("r", function (entry) {
-      if (entry.selected === true) {
-        return 20;
-      } else {
-        return 10;
-      }
-    }).attr("fill", function (entry) {
-      if (entry.depart === "CS") {
-        if (entry.highlighted === true) {
-          return "GreenYellow";
-        } else {
-          return "Green";
-        }
-      } else {
-        if (entry.highlighted === true) {
-          return "Cyan";
-        } else {
-          return "Blue";
-        }
-      }
-    });
-    grp.append("text").attr("x", function (entry) { return entry.x - 5 }).attr("y", function (entry) { return entry.y }).attr("style", "font-size: 5").text(function (entry) {
-      if (entry.selected === false) {
-        return entry.depart + " " + entry.id;
-      } else {
-        return entry.depart + " " + entry.id + ": " + entry.name + "  - " + entry.desc;
-      }
-    });
-
-  }
 
   shouldComponentUpdate() {
     return false;
@@ -780,6 +738,8 @@ class Graph extends Component {
   componentDidUpdate() {
     this.draw();
   }
+
+
 
   componentDidMount() {
     //have selected department setting, display only if in that department or dependent on it
@@ -804,8 +764,8 @@ class Graph extends Component {
       }
     }
 
-    this.graph = d3.select(this.refs.vis).attr("viewBox", "0 0 1000 1000");
-    this.draw();
+    this.img = d3.select(this.refs.vis).attr("viewBox", "0 0 1000 1000");
+    start(this.img);
   }
 
 
