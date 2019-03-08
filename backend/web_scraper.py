@@ -101,14 +101,14 @@ def get_data(page, data, math=False):
 
     for c in cid:
         course_split = c.get_text().split(' ')
-        depart = course_split[0]
+        depart = course_split[0].strip().upper()
         ID = course_split[1]
 
         # temp, need to hadnle both courses
         if len(ID) > 4:
             ID = course_split[1].split('/')[1]
         ID = int(''.join(filter(str.isdigit, ID)))
-        name = (' ').join(course_split[2:])
+        name = (' ').join(course_split[2:]).strip()
 
     # hacky
     if not math:
