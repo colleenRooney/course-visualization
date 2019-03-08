@@ -7,7 +7,6 @@ let names = [];
 let graph = undefined;
 
 function getColor(entry) {
-
   if (entry.depart === "CS") {
     if (entry.highlighted === true) {
       return "GreenYellow";
@@ -21,24 +20,21 @@ function getColor(entry) {
       return "Blue";
     }
   }
-
 }
 
 function getSize(entry) {
-
   if (entry.selected === true) {
     return 20;
   } else {
     return 10;
   }
-
 }
 
 function selectCircle(entry) {
   console.log("clicked");
   let found = false;
   let sel = entries[0];
-  console.log("entry: " + entry.id)
+  console.log("entry: " + entry.id);
   for (let i = 0; i < entries.length; i++) {
     if (entry.depart + " " + entry.id === entries[i].info) {
       console.log("found");
@@ -54,7 +50,7 @@ function selectCircle(entry) {
     if (entry.selected === false) {
       entry.selected = true;
       entry.highlighted = true;
-      console.log("sel highlighted: " + sel.highlighted + " should be true")
+      console.log("sel highlighted: " + sel.highlighted + " should be true");
       for (let i = 0; i < entries.length; i++) {
         for (let k = 0; k < entries.length; k++) {
           let name = entries[k].depart + " " + entries[k].id;
@@ -62,14 +58,13 @@ function selectCircle(entry) {
             console.log("highlighting");
             entries[k].highlighted = true;
           } else {
-            if (entry.depart + " " + entry.id != name) {
+            if (entry.depart + " " + entry.id !== name) {
               entries[k].highlighted = false;
             }
           }
-
         }
       }
-      console.log("sel highlighted: " + sel.highlighted + " should be true")
+      console.log("sel highlighted: " + sel.highlighted + " should be true");
     } else {
       entry.selected = false;
       entry.highlighted = false;
@@ -81,22 +76,22 @@ function selectCircle(entry) {
           } else {
             entries[k].highlighted = false;
           }
-
         }
       }
     }
-    console.log("sel highlighted: " + sel.highlighted + " should be true")
-    console.log("made it this far")
+    console.log("sel highlighted: " + sel.highlighted + " should be true");
+    console.log("made it this far");
     draw();
   }
-
 }
 
 function getText(entry) {
   if (entry.selected === false) {
     return entry.depart + " " + entry.id;
   } else {
-    return entry.depart + " " + entry.id + ": " + entry.name + "  - " + entry.desc;
+    return (
+      entry.depart + " " + entry.id + ": " + entry.name + "  - " + entry.desc
+    );
   }
 }
 
@@ -108,33 +103,64 @@ function draw() {
   //we will calculate the positions of everything else before we figure that out
 
   for (let i = 0; i < entries.length; i++) {
-    console.log("entries 1:" + entries)
+    console.log("entries 1:" + entries);
     let me = entries[i];
     let name = me.depart + " " + me.id;
+    console.log(name);
 
     for (let k = 0; k < entries.length; k++) {
       let name = entries[k].depart + " " + entries[k].id;
       if (me.pre.includes(name)) {
-        graph.append("line").attr("x1", me.x).attr("x2", entries[k].x).attr("y1", me.y).attr("y2", entries[k].y).attr("stroke", "black").attr("stroke-width", "1");
+        graph
+          .append("line")
+          .attr("x1", me.x)
+          .attr("x2", entries[k].x)
+          .attr("y1", me.y)
+          .attr("y2", entries[k].y)
+          .attr("stroke", "black")
+          .attr("stroke-width", "1");
       }
-
     }
   }
 
   //draw circles
-  let verts = graph.selectAll('g').data(entries);
+  let verts = graph.selectAll("g").data(entries);
 
   let vert = verts.enter();
-  let grp = vert.append("g").attr("id", function (entry) { return entry.depart + " " + entry.id }).on("click", function (entry) { return selectCircle(entry) });
-  grp.append("circle").attr("cx", function (entry) { return entry.x }).attr("cy", function (entry) { return entry.y }).attr("r", function (entry) {
-    return getSize(entry)
-  }).attr("fill", function (entry) {
-    return getColor(entry)
-  });
-  grp.append("text").attr("x", function (entry) { return entry.x - 5 }).attr("y", function (entry) { return entry.y }).attr("style", "font-size: 5").text(function (entry) {
-    return getText(entry)
-  });
-
+  let grp = vert
+    .append("g")
+    .attr("id", function(entry) {
+      return entry.depart + " " + entry.id;
+    })
+    .on("click", function(entry) {
+      return selectCircle(entry);
+    });
+  grp
+    .append("circle")
+    .attr("cx", function(entry) {
+      return entry.x;
+    })
+    .attr("cy", function(entry) {
+      return entry.y;
+    })
+    .attr("r", function(entry) {
+      return getSize(entry);
+    })
+    .attr("fill", function(entry) {
+      return getColor(entry);
+    });
+  grp
+    .append("text")
+    .attr("x", function(entry) {
+      return entry.x - 5;
+    })
+    .attr("y", function(entry) {
+      return entry.y;
+    })
+    .attr("style", "font-size: 5")
+    .text(function(entry) {
+      return getText(entry);
+    });
 }
 
 function start(inc) {
@@ -143,35 +169,22 @@ function start(inc) {
 }
 
 class Graph extends Component {
-
   constructor(props) {
     super(props);
-    
   }
-
-  shouldComponentUpdate() {
-    return false;
-  }
-
 
   componentDidUpdate() {
-    this.draw();
-  }
-
-
-
-  componentDidMount() {
     //have selected department setting, display only if in that department or dependent on it
-    for (let i = 0; i < this.props.crs.courses.length; i++) {
-      let entry = new Object();
-      entry.depart = this.props.crs.courses[i].depart;
-      entry.id = this.props.crs.courses[i].id;
-      entry.name = this.props.crs.courses[i].name;
-      entry.desc = this.props.crs.courses[i].desc;
-      entry.cred = this.props.crs.courses[i].cred;
-      entry.p = this.props.crs.courses[i].p;
-      entry.pre = this.props.crs.courses[i].pre;
-      entry.info = this.props.crs.courses[i].depart + " " + this.props.crs.courses[i].id;
+    for (let i = 0; i < this.props.crs.length; i++) {
+      let entry = {};
+      console.log(this.props.crs);
+      entry.depart = this.props.crs[i].depart;
+      entry.id = this.props.crs[i].cid;
+      entry.name = this.props.crs[i].name;
+      entry.desc = this.props.crs[i].desc;
+      entry.cred = this.props.crs[i].cred;
+      entry.pre = this.props.crs[i].pre;
+      entry.info = this.props.crs[i].depart + " " + this.props.crs[i].cid;
 
       entry.x = Math.floor(Math.random() * 950 + 50);
       entry.y = Math.floor(Math.random() * 950 + 50);
@@ -185,10 +198,8 @@ class Graph extends Component {
 
     this.img = d3.select(this.refs.vis).attr("viewBox", "0 0 1000 1000");
     start(this.img);
+    draw();
   }
-
-
-
 
   render() {
     return <svg ref="vis" className="Graph" />;
