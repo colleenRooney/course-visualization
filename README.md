@@ -48,3 +48,4 @@ The Django API is now running on port 8000 and you can start the frontend.
 <br><br>
 
 ### Frontend Setup
+<br>
