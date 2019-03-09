@@ -2,6 +2,20 @@ import React, { Component } from 'react';
 import './App.css';
 import Graph from './components/Graph.jsx';
 
+const core = {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start'
+};
+
+const grph = {
+
+};
+
+const panel = {
+  width: 500
+};
+
 class App extends Component {
   state = {
     courses: []
@@ -22,11 +36,11 @@ class App extends Component {
 
   render() {
     return (
-      <div>
-        <div>
+      <div style={core}>
+        <div style={grph}>
           <Graph crs = {this.state.courses}/>
         </div>
-        <div>
+        <div style={panel}>
           {this.state.courses.map(item => (
             <div key={item.id}>
               <h1>{item.depart} {item.cid}</h1>
