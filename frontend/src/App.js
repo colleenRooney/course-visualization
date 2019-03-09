@@ -18,7 +18,8 @@ const panel = {
 
 class App extends Component {
   state = {
-    courses: []
+    courses: [],
+    setting: 'CS',
   };
 
   async componentDidMount() {
@@ -34,6 +35,14 @@ class App extends Component {
     console.log(this.state.courses);
   };
 
+  setCS() {
+  this.setState({setting: 'CS'});
+  }
+
+  setMTH() {
+    this.setState({setting: 'MTH'});
+  }
+
   render() {
     return (
       <div style={core}>
@@ -41,6 +50,14 @@ class App extends Component {
           <Graph crs = {this.state.courses}/>
         </div>
         <div style={panel}>
+          <div style={core}>
+          <button onClick={this.setCS.bind(this)}>
+          CS
+          </button>
+          <button onClick={this.setMTH.bind(this)}>
+            Math
+          </button>
+          </div>
           {this.state.courses.map(item => (
             <div key={item.id}>
               <h1>{item.depart} {item.cid}</h1>
