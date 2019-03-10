@@ -1,16 +1,14 @@
-import React, { Component } from 'react';
-import './App.css';
-import Graph from './components/Graph.jsx';
+import React, { Component } from "react";
+import "./App.css";
+import Graph from "./components/Graph.jsx";
 
 const core = {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-start'
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "flex-start"
 };
 
-const grph = {
-
-};
+const grph = {};
 
 const panel = {
   width: 500
@@ -19,12 +17,12 @@ const panel = {
 class App extends Component {
   state = {
     courses: [],
-    setting: 'CS',
+    setting: "CS"
   };
 
   async componentDidMount() {
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/');
+      const res = await fetch("http://127.0.0.1:8000/api/");
       const courses = await res.json();
       this.setState({
         courses
@@ -32,35 +30,33 @@ class App extends Component {
     } catch (error) {
       console.log(error);
     }
-    console.log(this.state.courses);
-  };
+  }
 
   setCS() {
-  this.setState({setting: 'CS'});
+    this.setState({ setting: "CS" });
   }
 
   setMTH() {
-    this.setState({setting: 'MTH'});
+    this.setState({ setting: "MTH" });
   }
 
   render() {
+    console.log(this.state);
     return (
       <div style={core}>
         <div style={grph}>
-          <Graph crs = {this.state.courses}/>
+          <Graph crs={this.state.courses} depart={this.state.setting} />
         </div>
         <div style={panel}>
           <div style={core}>
-          <button onClick={this.setCS.bind(this)}>
-          CS
-          </button>
-          <button onClick={this.setMTH.bind(this)}>
-            Math
-          </button>
+            <button onClick={this.setCS.bind(this)}>CS</button>
+            <button onClick={this.setMTH.bind(this)}>Math</button>
           </div>
           {this.state.courses.map(item => (
             <div key={item.id}>
-              <h1>{item.depart} {item.cid}</h1>
+              <h1>
+                {item.depart} {item.cid}
+              </h1>
               <p>name: {item.name}</p>
               <p>description: {item.desc}</p>
               <p>credits: {item.cred}</p>
@@ -68,7 +64,7 @@ class App extends Component {
           ))}
         </div>
       </div>
-    )
+    );
   }
 }
 
