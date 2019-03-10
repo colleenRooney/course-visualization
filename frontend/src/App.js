@@ -2,23 +2,15 @@ import React, { Component } from "react";
 import "./App.css";
 import Graph from "./components/Graph.jsx";
 
-const core = {
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "flex-start"
-};
-
-const grph = {};
-
-const panel = {
-  width: 500
-};
-
 class App extends Component {
-  state = {
-    courses: [],
-    setting: "CS"
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      courses: [],
+      setting: "CS",
+      selected: {}
+    };
+  }
 
   async componentDidMount() {
     try {
@@ -43,12 +35,12 @@ class App extends Component {
   render() {
     console.log(this.state);
     return (
-      <div style={core}>
-        <div style={grph}>
+      <div className="core">
+        <div className="grph">
           <Graph crs={this.state.courses} depart={this.state.setting} />
         </div>
-        <div style={panel}>
-          <div style={core}>
+        <div className="panel">
+          <div className="core">
             <button onClick={this.setCS.bind(this)}>CS</button>
             <button onClick={this.setMTH.bind(this)}>Math</button>
           </div>
@@ -58,8 +50,9 @@ class App extends Component {
                 {item.depart} {item.cid}
               </h1>
               <p>name: {item.name}</p>
-              <p>description: {item.desc}</p>
+              <p>preqs: {item.pre}</p>
               <p>credits: {item.cred}</p>
+              <p>description: {item.desc}</p>
             </div>
           ))}
         </div>

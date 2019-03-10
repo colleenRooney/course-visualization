@@ -6,6 +6,7 @@ let nodes = [];
 let links = [];
 let cnames = [];
 let graph = undefined;
+let selected = undefined;
 
 function clearGraph() {
   nodes = [];
@@ -53,7 +54,7 @@ function readData(data, depart) {
   clearGraph();
   for (let i = 0; i < data.length; i++) {
     let target = data[i];
-    if (target.depart == depart) {
+    if (target.depart === depart) {
       addNode(target);
       for (let j = 0; j < data.length; j++) {
         let source = data[j];
@@ -85,7 +86,7 @@ function getColor(entry) {
 
 function getSize(entry) {
   if (entry.selected === true) {
-    return 200;
+    return 20;
   } else {
     return 10;
   }
@@ -108,6 +109,7 @@ function selectCircle(entry) {
     if (entry.selected === false) {
       entry.selected = true;
       entry.highlighted = true;
+      selected = entry;
       for (let i = 0; i < nodes.length; i++) {
         for (let k = 0; k < nodes.length; k++) {
           let name = nodes[k].info;
@@ -128,8 +130,6 @@ function selectCircle(entry) {
           let name = nodes[k].info;
           if (sel.pre.includes(name)) {
             nodes[k].highlighted = false;
-          } else {
-            nodes[k].highlighted = false;
           }
         }
       }
@@ -140,9 +140,10 @@ function selectCircle(entry) {
 
 function getText(entry) {
   if (entry.selected === false) {
-    return entry.info;
+    return entry.cid;
   } else {
-    return entry.depart + " " + entry.id + ": " + entry.name;
+    return entry.info;
+    //return entry.depart + " " + entry.cid + ": " + entry.id;
   }
 }
 
@@ -205,7 +206,7 @@ function draw() {
     .attr("y", function(entry) {
       return entry.y;
     })
-    .attr("style", "font-size: 12px")
+    .attr("style", "font-size: 12px, position: center")
     .attr("textLEngth", "20px")
     .text(function(entry) {
       return getText(entry);
