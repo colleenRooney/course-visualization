@@ -26,8 +26,17 @@ function addNode(course) {
     node.info = course.depart + " " + course.cid;
     node.selected = false;
     node.highlighted = false;
+    let cat = course.cid / 100;
     node.x = Math.floor(Math.random() * 950 + 50);
-    node.y = Math.floor(Math.random() * 950 + 50);
+    if (cat < 4) {
+      node.y = Math.floor(Math.random() * 100 + 100);
+    } else if (cat < 5) {
+      node.y = Math.floor(Math.random() * 300 + 200);
+    } else if (cat < 6) {
+      node.y = Math.floor(Math.random() * 300 + 500);
+    } else {
+      node.y = Math.floor(Math.random() * 150 + 800);
+    }
     nodes.push(node);
   }
 }
@@ -196,7 +205,7 @@ function draw() {
     .attr("y", function(entry) {
       return entry.y;
     })
-    .attr("style", "font-size: 8px")
+    .attr("style", "font-size: 12px")
     .attr("textLEngth", "20px")
     .text(function(entry) {
       return getText(entry);
