@@ -133,9 +133,7 @@ function getText(entry) {
   if (entry.selected === false) {
     return entry.info;
   } else {
-    return (
-      entry.depart + " " + entry.id + ": " + entry.name + "  - " + entry.desc
-    );
+    return entry.depart + " " + entry.id + ": " + entry.name;
   }
 }
 
@@ -159,7 +157,7 @@ function draw() {
           .attr("y1", me.y)
           .attr("y2", nodes[k].y)
           .attr("stroke", "black")
-          .attr("stroke-width", "1");
+          .attr("stroke-width", ".5");
       }
     }
   }
@@ -193,12 +191,13 @@ function draw() {
   grp
     .append("text")
     .attr("x", function(entry) {
-      return entry.x - 5;
+      return entry.x - getSize(entry);
     })
     .attr("y", function(entry) {
       return entry.y;
     })
-    .attr("style", "font-size: 5")
+    .attr("style", "font-size: 8px")
+    .attr("textLEngth", "20px")
     .text(function(entry) {
       return getText(entry);
     });
