@@ -4,6 +4,7 @@ import * as d3 from "d3";
 //will probably want to change if we get to it, this was fastest
 let entries = [];
 let names = [];
+let posns = []
 let graph = undefined;
 
 function getColor(entry) {
@@ -87,10 +88,10 @@ function selectCircle(entry) {
 
 function getText(entry) {
   if (entry.selected === false) {
-    return entry.depart + " " + entry.id;
+    return entry.id;
   } else {
     return (
-      entry.depart + " " + entry.id + ": " + entry.name + "  - " + entry.desc
+      entry.depart + " " + entry.id + ": " + entry.name
     );
   }
 }
@@ -118,7 +119,7 @@ function draw() {
           .attr("y1", me.y)
           .attr("y2", entries[k].y)
           .attr("stroke", "black")
-          .attr("stroke-width", "1");
+          .attr("stroke-width", ".5");
       }
     }
   }
@@ -129,36 +130,37 @@ function draw() {
   let vert = verts.enter();
   let grp = vert
     .append("g")
-    .attr("id", function(entry) {
+    .attr("id", function (entry) {
       return entry.depart + " " + entry.id;
     })
-    .on("click", function(entry) {
+    .on("click", function (entry) {
       return selectCircle(entry);
     });
   grp
     .append("circle")
-    .attr("cx", function(entry) {
+    .attr("cx", function (entry) {
       return entry.x;
     })
-    .attr("cy", function(entry) {
+    .attr("cy", function (entry) {
       return entry.y;
     })
-    .attr("r", function(entry) {
+    .attr("r", function (entry) {
       return getSize(entry);
     })
-    .attr("fill", function(entry) {
+    .attr("fill", function (entry) {
       return getColor(entry);
     });
   grp
     .append("text")
-    .attr("x", function(entry) {
-      return entry.x - 5;
+    .attr("x", function (entry) {
+      return entry.x - getSize(entry);
     })
-    .attr("y", function(entry) {
+    .attr("y", function (entry) {
       return entry.y;
     })
-    .attr("style", "font-size: 5")
-    .text(function(entry) {
+    .attr("style", "font-size: 8px")
+    .attr("textLEngth", "20px")
+    .text(function (entry) {
       return getText(entry);
     });
 }
@@ -175,6 +177,13 @@ class Graph extends Component {
 
   componentDidUpdate() {
     //have selected department setting, display only if in that department or dependent on it
+    let x1 = 30;
+    let x2 = 30;
+    let x3 = 30;
+    let x4 = 30;
+    let x5 = 30;
+    let x6 = 30;
+    let x7 = 30;
     for (let i = 0; i < this.props.crs.length; i++) {
       let entry = {};
       console.log(this.props.crs);
@@ -186,8 +195,39 @@ class Graph extends Component {
       entry.pre = this.props.crs[i].pre;
       entry.info = this.props.crs[i].depart + " " + this.props.crs[i].cid;
 
-      entry.x = Math.floor(Math.random() * 950 + 50);
-      entry.y = Math.floor(Math.random() * 950 + 50);
+      if (this.props.crs[i].cid < 200) {
+        entry.y = 50;
+        entry.x = x1;
+        x1 = x1 + 100;
+      } else if (this.props.crs[i].cid < 300) {
+        entry.y = 75;
+        entry.x = x2;
+        x2 = x2 + 75;
+      } else if (this.props.crs[i].cid > 700) {
+        entry.y = 950;
+        entry.x = x3;
+        x3 = x3 + 100;
+      } else {
+        let cat = (this.props.crs[i].cid / 100);
+        if (cat < 4) {
+          entry.y = Math.floor(Math.random() * 100 + 100);
+          entry.x = x4;
+          x4 = x4 + 30;
+        } else if (cat < 5) {
+          entry.y = Math.floor(Math.random() * 300 + 200);
+          entry.x = x5;
+          x5 = x5 + 12;
+        } else if (cat < 6) {
+          entry.y = Math.floor(Math.random() * 300 + 500);
+          entry.x = x6;
+          x6 = x6 + 12;
+        } else {
+          entry.y = Math.floor(Math.random() * 150 + 800);
+          entry.x = x7;
+          x7 = x7 + 20;
+        }
+      }
+
       entry.selected = false;
       entry.highlighted = false;
       if (names.includes(entry.depart + " " + entry.id) === false) {
