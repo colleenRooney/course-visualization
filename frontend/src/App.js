@@ -8,6 +8,8 @@ class App extends Component {
     this.state = {
       courses: [],
       setting: "CS",
+      grad: true,
+      gradButton: "Undergraduate",
       selected: {}
     };
   }
@@ -32,17 +34,34 @@ class App extends Component {
     this.setState({ setting: "MTH" });
   }
 
+  setGrad() {
+    if (this.state.grad) {
+      this.setState({ grad: false });
+      this.setState({ gradButton: "Graduate" });
+    } else {
+      this.setState({ grad: true });
+      this.setState({ gradButton: "Undergraduate" });
+    }
+  }
+
   render() {
     console.log(this.state);
     return (
       <div className="core">
         <div className="grph">
-          <Graph crs={this.state.courses} depart={this.state.setting} />
+          <Graph
+            crs={this.state.courses}
+            depart={this.state.setting}
+            grad={this.state.grad}
+          />
         </div>
         <div className="panel">
           <div className="core">
             <button onClick={this.setCS.bind(this)}>CS</button>
             <button onClick={this.setMTH.bind(this)}>Math</button>
+            <button onClick={this.setGrad.bind(this)}>
+              {this.state.gradButton}
+            </button>
           </div>
           {this.state.courses.map(item => (
             <div key={item.id}>

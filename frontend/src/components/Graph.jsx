@@ -13,7 +13,8 @@ function clearGraph() {
   links = [];
   cnames = [];
 }
-function addNode(course) {
+
+function addNode(course, grad) {
   let name = course.depart + " " + course.id;
   if (cnames.includes(name) === false) {
     cnames.push(name);
@@ -28,15 +29,23 @@ function addNode(course) {
     node.selected = false;
     node.highlighted = false;
     let cat = course.cid / 100;
-    node.x = Math.floor(Math.random() * 950 + 50);
-    if (cat < 4) {
-      node.y = Math.floor(Math.random() * 100 + 100);
-    } else if (cat < 5) {
-      node.y = Math.floor(Math.random() * 300 + 200);
-    } else if (cat < 6) {
-      node.y = Math.floor(Math.random() * 300 + 500);
+    console.log(course.cid);
+    console.log(cat);
+    node.x = Math.floor(Math.random() * 900 + 50);
+    let lim = [2, 3, 4, 5];
+    if (grad) {
+      lim = [3, 4, 5, 6];
+    }
+    if (cat < lim[0]) {
+      node.y = Math.floor(Math.random() * 100 + 50);
+    } else if (cat < lim[1]) {
+      node.y = Math.floor(Math.random() * 100 + 200);
+    } else if (cat < lim[2]) {
+      node.y = Math.floor(Math.random() * 100 + 350);
+    } else if (cat < lim[3]) {
+      node.y = Math.floor(Math.random() * 250 + 450);
     } else {
-      node.y = Math.floor(Math.random() * 150 + 800);
+      node.y = Math.floor(Math.random() * 100 + 750);
     }
     nodes.push(node);
   }
@@ -50,17 +59,23 @@ function addLink(source, target) {
   links.push(link);
 }
 
-function readData(data, depart) {
+function readData(data, depart, grad) {
   clearGraph();
+  let max = 499;
+  let min = 90;
+  if (grad) {
+    max = 699;
+    min = 500;
+  }
   for (let i = 0; i < data.length; i++) {
     let target = data[i];
-    if (target.depart === depart) {
-      addNode(target);
+    if (target.depart === depart && target.cid <= max && target.cid >= min) {
+      addNode(target, grad);
       for (let j = 0; j < data.length; j++) {
         let source = data[j];
         let name = source.depart + " " + source.cid;
         if (target.pre.includes(name)) {
-          addNode(source);
+          addNode(source, grad);
           addLink(source, target);
         }
       }
@@ -225,7 +240,7 @@ class Graph extends Component {
 
   componentDidUpdate() {
     //have selected department setting, display only if in that department or dependent on it
-    readData(this.props.crs, this.props.depart);
+    readData(this.props.crs, this.props.depart, this.props.grad);
 
     this.img = d3.select(this.refs.vis).attr("viewBox", "0 0 1000 1000");
     start(this.img);
