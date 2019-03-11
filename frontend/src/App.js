@@ -1,6 +1,20 @@
 import React, { Component } from "react";
 import "./App.css";
 import Graph from "./components/Graph.jsx";
+import Buttons from "./components/Buttons";
+
+const styles = theme => ({
+  button: {
+    margin: theme.spacing.unit,
+    backgroundcolor: "#383838",
+    "&:hover": {
+      backgroundcolor: "#282828"
+    },
+    color: "white",
+    fontweight: "bold",
+    boxshadow: "0 3px 5px 2px #ccffcc"
+  }
+});
 
 class App extends Component {
   constructor(props) {
@@ -48,7 +62,7 @@ class App extends Component {
     console.log(this.state);
     return (
       <div className="core">
-        <div className="grph">
+        <div className="graph">
           <Graph
             crs={this.state.courses}
             depart={this.state.setting}
@@ -57,11 +71,13 @@ class App extends Component {
         </div>
         <div className="panel">
           <div className="core">
-            <button onClick={this.setCS.bind(this)}>CS</button>
-            <button onClick={this.setMTH.bind(this)}>Math</button>
-            <button onClick={this.setGrad.bind(this)}>
-              {this.state.gradButton}
-            </button>
+            <Buttons
+              styles={styles}
+              onCS={() => this.setCS()}
+              onMTH={() => this.setMTH()}
+              onGrad={() => this.setGrad()}
+              gradButton={this.state.gradButton}
+            />
           </div>
           {this.state.courses.map(item => (
             <div key={item.id}>

@@ -29,8 +29,6 @@ function addNode(course, grad) {
     node.selected = false;
     node.highlighted = false;
     let cat = course.cid / 100;
-    console.log(course.cid);
-    console.log(cat);
     node.x = Math.floor(Math.random() * 900 + 50);
     let lim = [2, 3, 4, 5];
     if (grad) {
@@ -86,15 +84,15 @@ function readData(data, depart, grad) {
 function getColor(entry) {
   if (entry.depart === "CS") {
     if (entry.highlighted === true) {
-      return "GreenYellow";
+      return "#CCFF66";
     } else {
-      return "Green";
+      return "#CCDD66";
     }
   } else {
     if (entry.highlighted === true) {
-      return "Cyan";
+      return "#00FF99";
     } else {
-      return "Blue";
+      return "#00CC99";
     }
   }
 }
