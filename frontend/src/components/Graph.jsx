@@ -28,6 +28,7 @@ function addNode(course, grad) {
     node.info = course.depart + " " + course.cid;
     node.selected = false;
     node.highlighted = false;
+    node.visited = false;
     let cat = course.cid / 100;
     node.x = Math.floor(Math.random() * 900 + 50);
     let lim = [2, 3, 4, 5];
@@ -112,9 +113,11 @@ function selectCircle(entry) {
     if (entry.info === nodes[i].info) {
       found = true;
       sel = nodes[i];
+      entry.visited = false;
     } else {
       nodes[i].selected = false;
       nodes[i].highlighted = false;
+      nodes[i].visited = false;
     }
   }
 
@@ -123,31 +126,29 @@ function selectCircle(entry) {
       entry.selected = true;
       entry.highlighted = true;
       selected = entry;
-      for (let i = 0; i < nodes.length; i++) {
-        for (let k = 0; k < nodes.length; k++) {
-          let name = nodes[k].info;
-          if (sel.pre.includes(name)) {
-            nodes[k].highlighted = true;
-          } else {
-            if (entry.info !== name) {
-              nodes[k].highlighted = false;
-            }
-          }
-        }
-      }
+      selPre(entry, true);
     } else {
       entry.selected = false;
       entry.highlighted = false;
-      for (let i = 0; i < nodes.length; i++) {
-        for (let k = 0; k < nodes.length; k++) {
-          let name = nodes[k].info;
-          if (sel.pre.includes(name)) {
-            nodes[k].highlighted = false;
-          }
+      selected = entry;
+      selPre(entry, false);
+    }
+    draw();
+  }
+}
+
+function selPre(entry, res) {
+  if(entry) {
+    if(entry.visited === false) {
+      entry.visited = true;
+      for (let k = 0; k < nodes.length; k++) {
+        let name = nodes[k].info;
+        if (entry.pre.includes(name)) {
+          nodes[k].highlighted = res;
+          selPre(nodes[k], res);
         }
       }
     }
-    draw();
   }
 }
 
