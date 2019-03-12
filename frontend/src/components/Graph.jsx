@@ -1,253 +1,139 @@
 import React, { Component } from "react";
+import _ from "lodash";
 import * as d3 from "d3";
 
-//will probably want to change if we get to it, this was fastest
-let nodes = [];
-let links = [];
-let cnames = [];
-let graph = undefined;
-let selected = undefined;
+var courses = [];
+var links = [];
+var height = 700;
+var width = 700;
+var radius = 10;
 
-function clearGraph() {
-  nodes = [];
-  links = [];
-  cnames = [];
-}
-
-function addNode(course, grad) {
-  let name = course.depart + " " + course.id;
-  if (cnames.includes(name) === false) {
-    cnames.push(name);
-    let node = {};
-    node.depart = course.depart;
-    node.cid = course.cid;
-    node.id = course.name;
-    node.desc = course.desc;
-    node.cred = course.cred;
-    node.pre = course.pre;
-    node.info = course.depart + " " + course.cid;
-    node.selected = false;
-    node.highlighted = false;
-    node.visited = false;
-    let cat = course.cid / 100;
-    node.x = Math.floor(Math.random() * 900 + 50);
-    let lim = [2, 3, 4, 5];
-    if (grad) {
-      lim = [3, 4, 5, 6];
-    }
-    if (cat < lim[0]) {
-      node.y = Math.floor(Math.random() * 100 + 50);
-    } else if (cat < lim[1]) {
-      node.y = Math.floor(Math.random() * 100 + 200);
-    } else if (cat < lim[2]) {
-      node.y = Math.floor(Math.random() * 100 + 350);
-    } else if (cat < lim[3]) {
-      node.y = Math.floor(Math.random() * 250 + 450);
-    } else {
-      node.y = Math.floor(Math.random() * 100 + 750);
-    }
-    nodes.push(node);
-  }
-}
-
-function addLink(source, target) {
-  let link = {};
-  link.source = source.name;
-  link.target = target.name;
-  link.value = 2;
-  links.push(link);
-}
-
-function readData(data, depart, grad) {
-  clearGraph();
-  let max = 499;
-  let min = 90;
-  if (grad) {
-    max = 699;
-    min = 500;
-  }
-  for (let i = 0; i < data.length; i++) {
-    let target = data[i];
-    if (target.depart === depart && target.cid <= max && target.cid >= min) {
-      addNode(target, grad);
-      for (let j = 0; j < data.length; j++) {
-        let source = data[j];
-        let name = source.depart + " " + source.cid;
-        if (target.pre.includes(name)) {
-          addNode(source, grad);
-          addLink(source, target);
-        }
-      }
-    }
-  }
-}
-
-function getColor(entry) {
-  if (entry.depart === "CS") {
-    if (entry.highlighted === true) {
-      return "#CCFF66";
-    } else {
-      return "#CCDD66";
-    }
-  } else {
-    if (entry.highlighted === true) {
-      return "#00FF99";
-    } else {
-      return "#00CC99";
-    }
-  }
-}
-
-function getSize(entry) {
-  if (entry.selected === true) {
-    return 20;
-  } else {
-    return 10;
-  }
-}
-
-function selectCircle(entry) {
-  let found = false;
-  let sel = nodes[0];
-  for (let i = 0; i < nodes.length; i++) {
-    if (entry.info === nodes[i].info) {
-      found = true;
-      sel = nodes[i];
-      entry.visited = false;
-    } else {
-      nodes[i].selected = false;
-      nodes[i].highlighted = false;
-      nodes[i].visited = false;
-    }
-  }
-
-  if (found === true) {
-    if (entry.selected === false) {
-      entry.selected = true;
-      entry.highlighted = true;
-      selected = entry;
-      selPre(entry, true);
-    } else {
-      entry.selected = false;
-      entry.highlighted = false;
-      selected = entry;
-      selPre(entry, false);
-    }
-    draw();
-  }
-}
-
-function selPre(entry, res) {
-  if(entry) {
-    if(entry.visited === false) {
-      entry.visited = true;
-      for (let k = 0; k < nodes.length; k++) {
-        let name = nodes[k].info;
-        if (entry.pre.includes(name)) {
-          nodes[k].highlighted = res;
-          selPre(nodes[k], res);
-        }
-      }
-    }
-  }
-}
-
-function getText(entry) {
-  if (entry.selected === false) {
-    return entry.cid;
-  } else {
-    return entry.info;
-    //return entry.depart + " " + entry.cid + ": " + entry.id;
-  }
-}
-
-function draw() {
-  graph.selectAll("*").remove();
-
-  //draw lines
-  //arrows will seem to rquire the use of svg polygons. calculating them will probably be a little complex and I'd rather finalize how
-  //we will calculate the positions of everything else before we figure that out
-
-  for (let i = 0; i < nodes.length; i++) {
-    let me = nodes[i];
-
-    for (let k = 0; k < nodes.length; k++) {
-      let name = nodes[k].info;
-      if (me.pre.includes(name)) {
-        graph
-          .append("line")
-          .attr("x1", me.x)
-          .attr("x2", nodes[k].x)
-          .attr("y1", me.y)
-          .attr("y2", nodes[k].y)
-          .attr("stroke", "black")
-          .attr("stroke-width", ".5");
-      }
-    }
-  }
-
-  //draw circles
-  let verts = graph.selectAll("g").data(nodes);
-
-  let vert = verts.enter();
-  let grp = vert
-    .append("g")
-    .attr("id", function(entry) {
-      return entry.depart + " " + entry.id;
-    })
-    .on("click", function(entry) {
-      return selectCircle(entry);
-    });
-  grp
-    .append("circle")
-    .attr("cx", function(entry) {
-      return entry.x;
-    })
-    .attr("cy", function(entry) {
-      return entry.y;
-    })
-    .attr("r", function(entry) {
-      return getSize(entry);
-    })
-    .attr("fill", function(entry) {
-      return getColor(entry);
-    });
-  grp
-    .append("text")
-    .attr("x", function(entry) {
-      return entry.x - getSize(entry);
-    })
-    .attr("y", function(entry) {
-      return entry.y;
-    })
-    .attr("style", "font-size: 12px, position: center")
-    .attr("textLEngth", "20px")
-    .text(function(entry) {
-      return getText(entry);
-    });
-}
-
-function start(inc) {
-  graph = inc;
-  draw();
-}
+var departColor = ["#53cf8d", "#f7d283"];
+var simulation = d3
+  .forceSimulation()
+  .force("center", d3.forceCenter(width / 2, height / 2))
+  .force("charge", d3.forceManyBody().distanceMax(radius * 5))
+  .force("collide", d3.forceCollide(radius))
+  .force("y", d3.forceY(d => d.focusY))
+  .stop();
 
 class Graph extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      depart: null,
+      grad: null
+    };
+
+    this.forceTick = this.forceTick.bind(this);
+  }
+
+  componentWillMount() {
+    simulation.on("tick", this.forceTick);
+  }
+
+  componentDidMount() {
+    this.container = d3.select(this.refs.container);
+    this.renderCourses();
+
+    simulation
+      .nodes(courses)
+      .alpha(0.9)
+      .restart();
   }
 
   componentDidUpdate() {
-    //have selected department setting, display only if in that department or dependent on it
-    readData(this.props.crs, this.props.depart, this.props.grad);
+    courses = this.props.crs;
+    this.setCourses();
 
-    this.img = d3.select(this.refs.vis).attr("viewBox", "0 0 1000 1000");
-    start(this.img);
-    draw();
+    this.renderCourses();
+    simulation
+      .nodes(courses)
+      .alpha(0.9)
+      .restart();
+  }
+
+  setCourses() {
+    courses = [];
+    let max = 499;
+    let min = 90;
+    if (this.props.grad) {
+      max = 699;
+      min = 500;
+    }
+    let preqs = "";
+    courses = _.chain(this.props.crs)
+      .filter(d => d.cid < max)
+      .filter(d => d.cid > min)
+      .filter(d => d.depart === this.props.depart)
+      .map(d => {
+        preqs += d.pre;
+        return {
+          cid: d.cid,
+          id: d.name,
+          depart: d.depart,
+          desc: d.desc,
+          cred: d.cred,
+          pre: d.pre,
+          info: d.depart + " " + d.cid,
+          focusY: d.cid
+        };
+      })
+      .value();
+
+    for (let i = 0; i < this.props.crs.length; i++) {
+      if (
+        preqs.includes(this.props.crs[i].depart + " " + this.props.crs[i].cid)
+      ) {
+        let d = this.props.crs[i];
+        courses.push({
+          cid: d.cid,
+          id: d.name,
+          depart: d.depart,
+          desc: d.desc,
+          cred: d.cred,
+          pre: d.pre,
+          info: d.depart + " " + d.cid,
+          focusY: d.cid
+        });
+        console.log(d.pre.replace(/'|\[|\]/g, "").split(","));
+      }
+    }
+  }
+
+  renderCourses() {
+    this.circles = this.container.selectAll("circle").data(courses, d => d.id);
+
+    this.circles.exit().remove();
+
+    this.circles = this.circles
+      .enter()
+      .append("circle")
+      .merge(this.circles)
+      .attr("r", radius)
+      .attr("stroke-width", 3)
+      .attr("fill", function(d) {
+        if (d.depart === "CS") {
+          return departColor[0];
+        }
+        return departColor[1];
+      })
+      .attr("stroke", function(d) {
+        if (d.depart === "CS") {
+          return departColor[0];
+        }
+        return departColor[1];
+      })
+      .attr("fill-opacity", 0.5);
+  }
+
+  forceTick() {
+    this.circles.attr("cx", d => d.x).attr("cy", d => d.y);
   }
 
   render() {
-    return <svg ref="vis" className="Graph" />;
+    return <svg width={width} height={height} ref="container" />;
   }
 }
 
