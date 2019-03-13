@@ -63,22 +63,29 @@ class Graph extends Component {
 
   setCourses() {
     courses = [];
+    links = [];
     let max = 499;
     let min = 90;
     if (this.props.grad) {
       max = 699;
       min = 500;
     }
-    let preqs = "";
+    let preqs = {};
     courses = _.chain(this.props.crs)
       .filter(d => d.cid < max)
       .filter(d => d.cid > min)
       .filter(d => d.depart === this.props.depart)
       .map(d => {
-        preqs += d.pre;
+        var ID = d.depart.toUpperCase() + d.cid;
+        var ID_pre = d.pre
+          .toUpperCase()
+          .replace(/'|\[|\]| /g, "")
+          .split(",");
+        preqs[ID] = ID_pre;
+
         return {
           cid: d.cid,
-          id: d.depart + " " + d.cid,
+          id: ID,
           depart: d.depart,
           desc: d.desc,
           cred: d.cred,
@@ -90,52 +97,67 @@ class Graph extends Component {
       .value();
 
     for (let i = 0; i < this.props.crs.length; i++) {
-      if (
-        preqs
-          .toUpperCase()
-          .includes(
-            this.props.crs[i].depart.toUpperCase() + " " + this.props.crs[i].cid
-          )
-      ) {
-        let d = this.props.crs[i];
-        courses.push({
-          cid: d.cid,
-          id: d.depart + " " + d.cid,
-          depart: d.depart,
-          desc: d.desc,
-          cred: d.cred,
-          pre: d.pre,
-          name: d.name,
-          focusY: d.cid
-        });
-        var depends = d.pre
-          .replace(/'|\[|\]/g, "")
-          .toUpperCase()
-          .split(",");
-        for (let i = 0; i < depends.length; i++) {
-          if (depends[i] !== "") {
-            var link = {
-              source: depends[i],
-              target: d.depart + " " + d.cid,
-              value: 2
-            };
-            links.push(link);
-          }
+      for (let t in preqs) {
+        let s = this.props.crs[i];
+        if (preqs[t].includes(s.depart + s.cid)) {
+          courses.push({
+            cid: s.cid,
+            id: s.depart + s.cid,
+            depart: s.depart,
+            desc: s.desc,
+            cred: s.cred,
+            pre: s.pre,
+            name: s.name,
+            focusY: s.cid
+          });
+          var link = {
+            source: s.depart + s.cid,
+            target: t,
+            value: 2
+          };
+          links.push(link);
         }
       }
-      this.renderLinks();
     }
+    var edges = [];
+    links.forEach(function(e) {
+      var sourceNode = courses.filter(function(n) {
+          if ((n.id === e.source) !== undefined) {
+            return n.id === e.source;
+          } else {
+            return 0;
+          }
+        })[0],
+        targetNode = courses.filter(function(n) {
+          if ((n.id === e.target) !== undefined) {
+            return n.id === e.target;
+          } else {
+            return 0;
+          }
+        })[0];
+      edges.push({
+        source: sourceNode,
+        target: targetNode
+      });
+    });
+    console.log("links", links);
+    console.log(courses);
+    links = edges;
+    this.renderLinks();
+    simulation.force("link", d3.forceLink(links).id(d => d.id));
   }
 
   renderLinks() {
-    this.lines = this.container.selectAll("line").data(links);
+    this.lines = this.container.selectAll("link").data(links);
+    console.log(this.lines);
 
     this.lines.exit().remove();
 
     this.lines = this.lines
       .enter()
-      .insert("line", "g")
-      .attr("stroke", "black")
+      .insert("link", "g")
+      .attr("stroke-width", 1)
+      .attr("stroke", "#666")
       .merge(this.lines);
   }
 
@@ -150,6 +172,7 @@ class Graph extends Component {
       .call(drag)
       .merge(this.circles)
       .attr("r", radius)
+      .attr("id", d => d.id)
       .attr("stroke-width", 3)
       .attr("fill", function(d) {
         if (d.depart === "CS") {
