@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import "./App.css";
 import Graph from "./components/Graph.jsx";
 import Buttons from "./components/Buttons";
+import AddCourse from "./components/AddCourse";
 
 const styles = theme => ({
   button: {
@@ -24,9 +25,12 @@ class App extends Component {
       setting: "CS",
       grad: true,
       gradButton: "Undergraduate",
-      selected: {}
+      selected: {},
+      add: "Add Course",
+      list: ""
     };
     this.handleSelected = this.handleSelected.bind(this);
+    this.handleAdd = this.handleAdd.bind(this);
   }
 
   async componentDidMount() {
@@ -65,6 +69,18 @@ class App extends Component {
     }
   };
 
+  handleAdd() {
+    let temp =
+      this.state.list +
+      this.state.selected.depart +
+      " " +
+      this.state.selected.cid +
+      ", ";
+    temp +=
+      this.state.selected.pre.toUpperCase().replace(/'|\[|\]|/g, "") + ", ";
+    this.setState({ list: temp });
+  }
+
   render() {
     console.log(this.state);
     return (
@@ -100,6 +116,10 @@ class App extends Component {
               <p>preqs: {this.state.selected.pre}</p>
               <p>credits: {this.state.selected.cred}</p>
               <p>description: {this.state.selected.desc}</p>
+            </div>
+            <AddCourse text={this.state.add} onAdd={() => this.handleAdd()} />
+            <div className="myCard" id="courseList">
+              <p>{this.state.list}</p>
             </div>
           </div>
         </div>
