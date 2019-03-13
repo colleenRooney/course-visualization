@@ -66,23 +66,37 @@ class App extends Component {
   handleSelected = sel => {
     if (sel !== this.state.selected && sel) {
       this.setState({ selected: sel });
+      let name = sel.depart + " " + sel.cid;
+      console.log(name);
+      if (this.state.list.includes(name)) {
+        this.setState({ add: "Remove Course" });
+      } else {
+        this.setState({ add: "Add Course" });
+      }
     }
   };
 
   handleAdd() {
-    let temp =
-      this.state.list +
-      this.state.selected.depart +
-      " " +
-      this.state.selected.cid +
-      ", ";
-    temp +=
-      this.state.selected.pre.toUpperCase().replace(/'|\[|\]|/g, "") + ", ";
-    this.setState({ list: temp });
+    let name = this.state.selected.depart + " " + this.state.selected.cid;
+    if (this.state.add === "Add Course") {
+      let temp = this.state.list + name + ", ";
+      let temp_pre = this.state.selected.pre
+        .toUpperCase()
+        .replace(/'|\[|\]|/g, "");
+      if (temp_pre !== "") {
+        temp += temp_pre + ", ";
+      }
+      this.setState({ add: "Remove Course" });
+      this.setState({ list: temp });
+    } else {
+      this.setState({ add: "Add Course" });
+      let re = new RegExp(name + ", ", "g");
+      let temp = this.state.list.replace(re, "");
+      this.setState({ list: temp });
+    }
   }
 
   render() {
-    console.log(this.state);
     return (
       <div className="container-page">
         <div className="banner">

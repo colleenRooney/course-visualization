@@ -5,7 +5,7 @@ import * as d3 from "d3";
 var courses = [];
 var links = [];
 var height = 800;
-var width = 800;
+var width = 1000;
 var radius = 10;
 var lineWidth = 1;
 var linkDist = 100;
