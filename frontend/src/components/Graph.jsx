@@ -12,8 +12,8 @@ var departColor = ["#53cf8d", "#f7d283"];
 var simulation = d3
   .forceSimulation()
   .force("center", d3.forceCenter(width / 2, height / 2))
-  .force("charge", d3.forceManyBody().distanceMax(radius * 5))
   .force("collide", d3.forceCollide(radius))
+  .force("charge", d3.forceManyBody().distanceMax(radius * 5))
   .force("y", d3.forceY(d => d.focusY))
   .stop();
 var drag = d3.drag();
@@ -64,6 +64,7 @@ class Graph extends Component {
   setCourses() {
     courses = [];
     links = [];
+    d3.selectAll("svg > *").remove();
     let max = 499;
     let min = 90;
     if (this.props.grad) {
@@ -91,7 +92,7 @@ class Graph extends Component {
           cred: d.cred,
           pre: d.pre,
           name: d.name,
-          focusY: d.cid
+          focusY: d.cid + 100
         };
       })
       .value();
@@ -113,7 +114,7 @@ class Graph extends Component {
           var link = {
             source: s.depart + s.cid,
             target: t,
-            value: 2
+            value: 5
           };
           links.push(link);
         }
@@ -140,24 +141,27 @@ class Graph extends Component {
         target: targetNode
       });
     });
-    console.log("links", links);
-    console.log(courses);
     links = edges;
     this.renderLinks();
-    simulation.force("link", d3.forceLink(links).id(d => d.id));
+    simulation.force(
+      "link",
+      d3
+        .forceLink(links)
+        .id(d => d.id)
+        .distance(100)
+    );
   }
 
   renderLinks() {
     this.lines = this.container.selectAll("link").data(links);
-    console.log(this.lines);
 
     this.lines.exit().remove();
 
     this.lines = this.lines
       .enter()
-      .insert("link", "g")
-      .attr("stroke-width", 1)
-      .attr("stroke", "#666")
+      .insert("line", "g")
+      .attr("stroke-width", 2)
+      .attr("stroke", "#d3d3d3")
       .merge(this.lines);
   }
 
