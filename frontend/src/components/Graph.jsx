@@ -4,9 +4,9 @@ import * as d3 from "d3";
 
 var courses = [];
 var links = [];
-var height = 700;
-var width = 700;
-var radius = 5;
+var height = 800;
+var width = 800;
+var radius = 10;
 var lineWidth = 1;
 var linkDist = 100;
 var radiusLarge = 100;
@@ -19,7 +19,7 @@ var simulation = d3
   .force(
     "collide",
     d3.forceCollide().radius(function(d) {
-      return d.radius;
+      return d.radius * 2;
     })
   )
   .force("charge", d3.forceManyBody().distanceMax(radius * 5))
@@ -245,6 +245,8 @@ class Graph extends Component {
 
   forceTick() {
     this.props.onSelect(selected);
+    simulation.force("y", d3.forceY(d => d.focusY)).restart();
+
     this.circles
       .attr("cx", function(d) {
         return (d.x = Math.max(d.r + 5, Math.min(width - d.r - 5, d.x)));

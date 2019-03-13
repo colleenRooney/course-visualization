@@ -68,32 +68,40 @@ class App extends Component {
   render() {
     console.log(this.state);
     return (
-      <div className="core">
-        <div className="graph">
-          <Graph
-            crs={this.state.courses}
-            depart={this.state.setting}
-            grad={this.state.grad}
-            onSelect={this.handleSelected}
-          />
+      <div className="container-page">
+        <div className="banner">
+          <h1>Portland State University</h1>
+          <p>course visualization</p>
         </div>
-        <div className="panel">
-          <div className="core">
-            <Buttons
-              styles={styles}
-              onCS={() => this.setCS()}
-              onMTH={() => this.setMTH()}
-              onGrad={() => this.setGrad()}
-              gradButton={this.state.gradButton}
+        <div className="container-content">
+          <div className="graph">
+            <Graph
+              crs={this.state.courses}
+              depart={this.state.setting}
+              grad={this.state.grad}
+              onSelect={this.handleSelected}
             />
           </div>
-          <h1>
-            {this.state.selected.depart} {this.state.selected.cid}
-          </h1>
-          <p>name: {this.state.selected.name}</p>
-          <p>preqs: {this.state.selected.pre}</p>
-          <p>credits: {this.state.selected.cred}</p>
-          <p>description: {this.state.selected.desc}</p>
+          <div className="panel">
+            <div>
+              <Buttons
+                styles={styles}
+                onCS={() => this.setCS()}
+                onMTH={() => this.setMTH()}
+                onGrad={() => this.setGrad()}
+                gradButton={this.state.gradButton}
+              />
+            </div>
+            <div className="myCard">
+              <h1>
+                {this.state.selected.depart} {this.state.selected.cid}
+              </h1>
+              <p>name: {this.state.selected.name}</p>
+              <p>preqs: {this.state.selected.pre}</p>
+              <p>credits: {this.state.selected.cred}</p>
+              <p>description: {this.state.selected.desc}</p>
+            </div>
+          </div>
         </div>
       </div>
     );

@@ -6,13 +6,13 @@ import Button from "@material-ui/core/Button";
 const styles = theme => ({
   button: {
     margin: theme.spacing.unit,
-    backgroundColor: "#383838",
+    backgroundColor: "white",
     "&:hover": {
-      backgroundColor: "black"
+      backgroundColor: "#d3d3d3"
     },
-    color: "white",
+    color: "black",
     fontWeight: "bold",
-    boxShadow: "0 3px 5px 2px #cccc99"
+    boxShadow: "0 3px 5px 2px #d3d3d3"
   }
 });
 
@@ -27,7 +27,7 @@ class Buttons extends Component {
 
   render() {
     return (
-      <div>
+      <div className="button-container">
         <Button
           variant="contained"
           onClick={() => this.props.onCS()}
@@ -42,6 +42,7 @@ class Buttons extends Component {
         >
           Math
         </Button>
+        <br />
         <Button
           variant="contained"
           onClick={() => this.props.onGrad()}
