@@ -8,7 +8,7 @@ var height = 700;
 var width = 700;
 var radius = 5;
 var lineWidth = 1;
-var linkDist = 10;
+var linkDist = 100;
 var radiusLarge = 100;
 
 var departColor = ["#53cf8d", "#f7d283"];
@@ -235,10 +235,38 @@ class Graph extends Component {
         return (d.y = Math.max(d.r + 5, Math.min(width - d.r - 5, d.y)));
       });
     this.lines
-      .attr("x1", d => d.source.x)
-      .attr("x2", d => d.target.x)
-      .attr("y1", d => d.source.y)
-      .attr("y2", d => d.target.y);
+      .attr("x1", function(d) {
+        let dist = Math.sqrt(
+          Math.pow(d.target.x - d.source.x, 2) +
+            Math.pow(d.target.y - d.source.y, 2)
+        );
+        let t = d.source.r / dist;
+        return (1 - t) * d.source.x + t * d.target.x;
+      })
+      .attr("x2", function(d) {
+        let dist = Math.sqrt(
+          Math.pow(d.source.x - d.target.x, 2) +
+            Math.pow(d.source.y - d.target.y, 2)
+        );
+        let t = d.target.r / dist;
+        return (1 - t) * d.target.x + t * d.source.x;
+      })
+      .attr("y1", function(d) {
+        let dist = Math.sqrt(
+          Math.pow(d.target.x - d.source.x, 2) +
+            Math.pow(d.target.y - d.source.y, 2)
+        );
+        let t = d.source.r / dist;
+        return (1 - t) * d.source.y + t * d.target.y;
+      })
+      .attr("y2", function(d) {
+        let dist = Math.sqrt(
+          Math.pow(d.source.x - d.target.x, 2) +
+            Math.pow(d.source.y - d.target.y, 2)
+        );
+        let t = d.target.r / dist;
+        return (1 - t) * d.target.y + t * d.source.y;
+      });
   }
 
   dragStart() {
