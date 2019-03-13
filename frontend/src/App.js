@@ -26,6 +26,7 @@ class App extends Component {
       gradButton: "Undergraduate",
       selected: {}
     };
+    this.handleSelected = this.handleSelected.bind(this);
   }
 
   async componentDidMount() {
@@ -58,8 +59,10 @@ class App extends Component {
     }
   }
 
-  handleSelected = selected => {
-    console.log(selected);
+  handleSelected = sel => {
+    if (sel !== this.state.selected && sel) {
+      this.setState({ selected: sel });
+    }
   };
 
   render() {
@@ -84,17 +87,13 @@ class App extends Component {
               gradButton={this.state.gradButton}
             />
           </div>
-          {this.state.courses.map(item => (
-            <div key={item.id}>
-              <h1>
-                {item.depart} {item.cid}
-              </h1>
-              <p>name: {item.name}</p>
-              <p>preqs: {item.pre}</p>
-              <p>credits: {item.cred}</p>
-              <p>description: {item.desc}</p>
-            </div>
-          ))}
+          <h1>
+            {this.state.selected.depart} {this.state.selected.cid}
+          </h1>
+          <p>name: {this.state.selected.name}</p>
+          <p>preqs: {this.state.selected.pre}</p>
+          <p>credits: {this.state.selected.cred}</p>
+          <p>description: {this.state.selected.desc}</p>
         </div>
       </div>
     );

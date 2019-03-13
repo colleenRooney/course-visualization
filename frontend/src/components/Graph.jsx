@@ -10,6 +10,7 @@ var radius = 5;
 var lineWidth = 1;
 var linkDist = 100;
 var radiusLarge = 100;
+var selected = false;
 
 var departColor = ["#53cf8d", "#f7d283"];
 var simulation = d3
@@ -56,6 +57,20 @@ class Graph extends Component {
       .nodes(courses)
       .alpha(0.9)
       .restart();
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    console.log(nextProps);
+    console.log(this.props);
+    if (
+      this.props.depart === nextProps.depart &&
+      this.props.grad === nextProps.grad &&
+      this.props.crs === nextProps.crs
+    ) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   componentDidUpdate() {
@@ -208,12 +223,14 @@ class Graph extends Component {
           .transition()
           .attr("r", radius);
         if (!d.selected) {
+          selected = this.__data__;
           d3.select(this)
             .transition()
             .attr("r", radiusLarge);
           d.selected = true;
           d.r = radiusLarge;
         } else {
+          selected = false;
           d.selected = false;
           d.r = radius;
         }
@@ -227,6 +244,7 @@ class Graph extends Component {
   }
 
   forceTick() {
+    this.props.onSelect(selected);
     this.circles
       .attr("cx", function(d) {
         return (d.x = Math.max(d.r + 5, Math.min(width - d.r - 5, d.x)));
