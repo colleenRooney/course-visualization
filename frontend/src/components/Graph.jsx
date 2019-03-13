@@ -227,7 +227,13 @@ class Graph extends Component {
   }
 
   forceTick() {
-    this.circles.attr("cx", d => d.x).attr("cy", d => d.y);
+    this.circles
+      .attr("cx", function(d) {
+        return (d.x = Math.max(d.r + 5, Math.min(width - d.r - 5, d.x)));
+      })
+      .attr("cy", function(d) {
+        return (d.y = Math.max(d.r + 5, Math.min(width - d.r - 5, d.y)));
+      });
     this.lines
       .attr("x1", d => d.source.x)
       .attr("x2", d => d.target.x)
