@@ -8,11 +8,11 @@ const styles = theme => ({
     margin: theme.spacing.unit,
     backgroundColor: "white",
     "&:hover": {
-      backgroundColor: "#d3d3d3"
+      backgroundColor: "#efefef"
     },
     color: "black",
     fontWeight: "bold",
-    boxShadow: "0 3px 5px 2px #d3d3d3"
+    boxShadow: "0 3px 5px 2px #efe4ce"
   }
 });
 
