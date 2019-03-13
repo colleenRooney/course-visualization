@@ -58,6 +58,10 @@ class App extends Component {
     }
   }
 
+  handleSelected = selected => {
+    console.log(selected);
+  };
+
   render() {
     console.log(this.state);
     return (
@@ -67,6 +71,7 @@ class App extends Component {
             crs={this.state.courses}
             depart={this.state.setting}
             grad={this.state.grad}
+            onSelect={this.handleSelected}
           />
         </div>
         <div className="panel">

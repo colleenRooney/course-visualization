@@ -6,13 +6,21 @@ var courses = [];
 var links = [];
 var height = 700;
 var width = 700;
-var radius = 10;
+var radius = 5;
+var lineWidth = 1;
+var linkDist = 10;
+var radiusLarge = 100;
 
 var departColor = ["#53cf8d", "#f7d283"];
 var simulation = d3
   .forceSimulation()
   .force("center", d3.forceCenter(width / 2, height / 2))
-  .force("collide", d3.forceCollide(radius))
+  .force(
+    "collide",
+    d3.forceCollide().radius(function(d) {
+      return d.radius;
+    })
+  )
   .force("charge", d3.forceManyBody().distanceMax(radius * 5))
   .force("y", d3.forceY(d => d.focusY))
   .stop();
@@ -92,6 +100,8 @@ class Graph extends Component {
           cred: d.cred,
           pre: d.pre,
           name: d.name,
+          r: radius,
+          selected: false,
           focusY: d.cid + 100
         };
       })
@@ -109,6 +119,8 @@ class Graph extends Component {
             cred: s.cred,
             pre: s.pre,
             name: s.name,
+            r: radius,
+            selected: false,
             focusY: s.cid
           });
           var link = {
@@ -148,7 +160,7 @@ class Graph extends Component {
       d3
         .forceLink(links)
         .id(d => d.id)
-        .distance(100)
+        .distance(linkDist)
     );
   }
 
@@ -160,7 +172,7 @@ class Graph extends Component {
     this.lines = this.lines
       .enter()
       .insert("line", "g")
-      .attr("stroke-width", 2)
+      .attr("stroke-width", lineWidth)
       .attr("stroke", "#d3d3d3")
       .merge(this.lines);
   }
@@ -175,7 +187,7 @@ class Graph extends Component {
       .append("circle")
       .call(drag)
       .merge(this.circles)
-      .attr("r", radius)
+      .attr("r", d => d.r)
       .attr("id", d => d.id)
       .attr("stroke-width", 3)
       .attr("fill", function(d) {
@@ -190,7 +202,28 @@ class Graph extends Component {
         }
         return departColor[1];
       })
-      .attr("fill-opacity", 0.5);
+      .attr("fill-opacity", 0.5)
+      .on("click", function(d) {
+        d3.selectAll("circle")
+          .transition()
+          .attr("r", radius);
+        if (!d.selected) {
+          d3.select(this)
+            .transition()
+            .attr("r", radiusLarge);
+          d.selected = true;
+          d.r = radiusLarge;
+        } else {
+          d.selected = false;
+          d.r = radius;
+        }
+        simulation.force(
+          "collide",
+          d3.forceCollide().radius(function(d) {
+            return d.r;
+          })
+        );
+      });
   }
 
   forceTick() {
