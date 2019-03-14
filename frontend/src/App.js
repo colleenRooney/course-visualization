@@ -27,6 +27,7 @@ class App extends Component {
       gradButton: "Undergraduate",
       selected: {},
       add: "Add Course",
+      highlighted: [],
       list: ""
     };
     this.handleSelected = this.handleSelected.bind(this);
@@ -64,9 +65,9 @@ class App extends Component {
     }
   }
 
-  handleSelected = sel => {
+  handleSelected = (sel, high) => {
     if (sel !== this.state.selected && sel) {
-      this.setState({ selected: sel });
+      this.setState({ selected: sel, highlighted: high });
       let name = sel.depart + " " + sel.cid;
       console.log(name);
       if (this.state.list.includes(name)) {
@@ -81,11 +82,18 @@ class App extends Component {
     let name = this.state.selected.depart + " " + this.state.selected.cid;
     if (this.state.add === "Add Course") {
       let temp = this.state.list + name + ", ";
-      let temp_pre = this.state.selected.pre
-        .toUpperCase()
-        .replace(/'|\[|\]|/g, "");
-      if (temp_pre !== "") {
-        temp += temp_pre + ", ";
+      console.log("add", this.state.highlighted);
+      for (let i = 0; i < this.state.highlighted.length; i++) {
+        console.log(this.state.highlighted[i]);
+        let temp_pre = this.state.highlighted[i].pre
+          .toUpperCase()
+          .replace(/'|\[|\]|/g, "")
+          .split(",");
+        for (let j = 0; j < temp_pre.length; j++) {
+          if (temp_pre[j] !== "" && !temp.includes(temp_pre[j])) {
+            temp += temp_pre + ", ";
+          }
+        }
       }
       this.setState({ add: "Remove Course" });
       this.setState({ list: temp });
