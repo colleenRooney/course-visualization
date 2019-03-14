@@ -59,7 +59,8 @@ class App extends Component {
     }
   }
 
-  handleSelected = sel => {
+  handleSelected = (sel) => {
+    console.log(sel)
     if (sel !== this.state.selected && sel) {
       this.setState({ selected: sel });
     }
@@ -74,7 +75,7 @@ class App extends Component {
             crs={this.state.courses}
             depart={this.state.setting}
             grad={this.state.grad}
-            onSelect={this.handleSelected}
+            handleSelected={this.handleSelected}
           />
         </div>
         <div className="panel">
@@ -90,7 +91,7 @@ class App extends Component {
           <h1>
             {this.state.selected.depart} {this.state.selected.cid}
           </h1>
-          <p>name: {this.state.selected.name}</p>
+          <p>name: {this.state.selected.depart + " " + this.state.selected.id}</p>
           <p>preqs: {this.state.selected.pre}</p>
           <p>credits: {this.state.selected.cred}</p>
           <p>description: {this.state.selected.desc}</p>
