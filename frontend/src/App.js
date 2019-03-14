@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import "./App.css";
-import Graph from "./components/Graph.jsx";
 import Buttons from "./components/Buttons";
 import AddCourse from "./components/AddCourse";
+import GraphSelector from "./components/GraphSelector";
+import Switch from "@material-ui/core/Switch";
 
 const styles = theme => ({
   button: {
@@ -27,11 +28,13 @@ class App extends Component {
       gradButton: "Undergraduate",
       selected: {},
       add: "Add Course",
-      list: ""
+      list: "",
+      static: false
     };
     this.handleSelected = this.handleSelected.bind(this);
     this.handleAdd = this.handleAdd.bind(this);
     this.handleClear = this.handleClear.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   async componentDidMount() {
@@ -68,7 +71,6 @@ class App extends Component {
     if (sel !== this.state.selected && sel) {
       this.setState({ selected: sel });
       let name = sel.depart + " " + sel.cid;
-      console.log(name);
       if (this.state.list.includes(name)) {
         this.setState({ add: "Remove Course" });
       } else {
@@ -102,7 +104,12 @@ class App extends Component {
     this.setState({ list: "" });
   }
 
+  handleChange = name => event => {
+    this.setState({ [name]: event.target.checked });
+  };
+
   render() {
+    console.log(this.state);
     return (
       <div className="container-page">
         <div className="banner">
@@ -111,11 +118,12 @@ class App extends Component {
         </div>
         <div className="container-content">
           <div className="graph">
-            <Graph
+            <GraphSelector
+              static={this.state.static}
               crs={this.state.courses}
               depart={this.state.setting}
               grad={this.state.grad}
-              onSelect={this.handleSelected}
+              handleSelected={this.handleSelected}
             />
           </div>
           <div className="panel">

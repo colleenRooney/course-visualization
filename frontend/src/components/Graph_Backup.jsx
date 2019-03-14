@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import * as d3 from "d3";
+import { nextTick } from "q";
 
 //will probably want to change if we get to it, this was fastest
 let nodes = [];
@@ -7,11 +8,13 @@ let links = [];
 let cnames = [];
 let graph = undefined;
 let selected = undefined;
+let selection = {};
 
 function clearGraph() {
   nodes = [];
   links = [];
   cnames = [];
+  selection = {};
 }
 
 function addNode(course, grad) {
@@ -107,6 +110,7 @@ function getSize(entry) {
 }
 
 function selectCircle(entry) {
+  selection = entry;
   let found = false;
   let sel = nodes[0];
   for (let i = 0; i < nodes.length; i++) {
@@ -138,8 +142,8 @@ function selectCircle(entry) {
 }
 
 function selPre(entry, res) {
-  if(entry) {
-    if(entry.visited === false) {
+  if (entry) {
+    if (entry.visited === false) {
       entry.visited = true;
       for (let k = 0; k < nodes.length; k++) {
         let name = nodes[k].info;
@@ -235,6 +239,21 @@ function start(inc) {
 class Graph extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      selected: {}
+    };
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (
+      this.props.depart != nextProps.depart ||
+      this.props.grad != nextProps.grad ||
+      this.props.crs != nextProps.crs
+    ) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   componentDidUpdate() {
@@ -246,8 +265,24 @@ class Graph extends Component {
     draw();
   }
 
+  /*updateSel(){
+    if(sel1 != selection){
+      let sel1 = selection;
+      sel1 = selection;
+      this.setState({
+        selected: selection
+      });
+    }
+  }*/
+
   render() {
-    return <svg ref="vis" className="Graph" />;
+    return (
+      <svg
+        ref="vis"
+        className="Graph"
+        onMouseOver={event => this.props.onSelect(selection)}
+      />
+    );
   }
 }
 
