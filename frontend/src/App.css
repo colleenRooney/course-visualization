@@ -1,3 +1,6 @@
+.circle text {
+  fill: black;
+}
 .container-page {
   display: flex;
   flex-direction: column;
@@ -91,5 +94,5 @@
 }
 
 #courseList {
-  height: 500px;
+  height: 400px;
 }

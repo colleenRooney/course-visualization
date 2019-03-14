@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import "../App.css";
 import _ from "lodash";
 import * as d3 from "d3";
 
@@ -11,6 +12,7 @@ var lineWidth = 1;
 var linkDist = 100;
 var radiusLarge = 100;
 var selected = false;
+var names = [];
 
 var departColor = ["#53cf8d", "#f7d283"];
 var simulation = d3
@@ -60,8 +62,6 @@ class Graph extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    console.log(nextProps);
-    console.log(this.props);
     if (
       this.props.depart === nextProps.depart &&
       this.props.grad === nextProps.grad &&
@@ -87,6 +87,7 @@ class Graph extends Component {
   setCourses() {
     courses = [];
     links = [];
+    names = [];
     d3.selectAll("svg > *").remove();
     let max = 499;
     let min = 90;
@@ -101,10 +102,14 @@ class Graph extends Component {
       .filter(d => d.depart === this.props.depart)
       .map(d => {
         var ID = d.depart.toUpperCase() + d.cid;
-        var ID_pre = d.pre
-          .toUpperCase()
-          .replace(/'|\[|\]| /g, "")
-          .split(",");
+        if (d.pre) {
+          var ID_pre = d.pre
+            .toUpperCase()
+            .replace(/'|\[|\]| /g, "")
+            .split(",");
+        } else {
+          ID_pre = "[]";
+        }
         preqs[ID] = ID_pre;
 
         return {
@@ -125,7 +130,8 @@ class Graph extends Component {
     for (let i = 0; i < this.props.crs.length; i++) {
       for (let t in preqs) {
         let s = this.props.crs[i];
-        if (preqs[t].includes(s.depart + s.cid)) {
+        if (preqs[t].includes(s.depart + s.cid) && !names.includes(s.name)) {
+          names.push(s.name);
           courses.push({
             cid: s.cid,
             id: s.depart + s.cid,
@@ -199,6 +205,8 @@ class Graph extends Component {
 
     this.circles = this.circles
       .enter()
+      .append("g")
+      .attr("class", "circle")
       .append("circle")
       .call(drag)
       .merge(this.circles)
@@ -240,6 +248,18 @@ class Graph extends Component {
             return d.r;
           })
         );
+      });
+    this.container
+      .selectAll("g")
+      .append("text")
+      .attr("dx", function(d) {
+        return d.x;
+      })
+      .attr("dy", function(d) {
+        return d.y;
+      })
+      .text(function(d) {
+        return d.id;
       });
   }
 

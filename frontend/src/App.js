@@ -31,6 +31,7 @@ class App extends Component {
     };
     this.handleSelected = this.handleSelected.bind(this);
     this.handleAdd = this.handleAdd.bind(this);
+    this.handleClear = this.handleClear.bind(this);
   }
 
   async componentDidMount() {
@@ -96,6 +97,11 @@ class App extends Component {
     }
   }
 
+  handleClear() {
+    this.setState({ add: "Add Course" });
+    this.setState({ list: "" });
+  }
+
   render() {
     return (
       <div className="container-page">
@@ -131,7 +137,11 @@ class App extends Component {
               <p>credits: {this.state.selected.cred}</p>
               <p>description: {this.state.selected.desc}</p>
             </div>
-            <AddCourse text={this.state.add} onAdd={() => this.handleAdd()} />
+            <AddCourse
+              text={this.state.add}
+              onClear={() => this.handleClear()}
+              onAdd={() => this.handleAdd()}
+            />
             <div className="myCard" id="courseList">
               <p>{this.state.list}</p>
             </div>

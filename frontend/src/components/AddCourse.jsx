@@ -35,6 +35,13 @@ class AddCourse extends Component {
         >
           {this.props.text}
         </Button>
+        <Button
+          variant="contained"
+          onClick={() => this.props.onClear()}
+          className={this.state.classes.button}
+        >
+          Clear Courses
+        </Button>
       </div>
     );
   }
